@@ -16,8 +16,6 @@ public class DraggableObject : MonoBehaviour
 
             if (hit.collider != null)
             {
-                Debug.Log("Raycast가 충돌한 오브젝트: " + hit.collider.gameObject.name);
-
                 // 클릭한 오브젝트가 이 오브젝트인지 확인
                 if (hit.transform == transform)
                 {
@@ -48,7 +46,7 @@ public class DraggableObject : MonoBehaviour
         {
             Vector3 mousePosition = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0));
             transform.position = mousePosition + offset;
-            Debug.Log("드래그 중 - 오브젝트 위치: " + transform.position);
+            //Debug.Log("드래그 중 - 오브젝트 위치: " + transform.position);
         }
     }
 }

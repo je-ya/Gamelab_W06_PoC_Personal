@@ -1,0 +1,203 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class NpcBehavior : MonoBehaviour
+{
+    public Transform[] targets;  // 여러 타겟 등록용
+    public Transform CurrentTarget =>
+        (currentTargetIndex < targets.Length) ? targets[currentTargetIndex] : null;
+
+    [SerializeField]
+    int currentTargetIndex = 0;
+    
+    float moveSpeed = 2f;
+    float allowedDistanceFromPath = 0.1f; // 경로에서 허용되는 거리
+    Vector3 startPosition; // 현재 경로의 시작점
+
+    Camera mainCamera;
+
+
+    bool wasDragging = false;
+    bool isDraggingTarget = false;
+    bool isDraggingSelf = false;
+    Vector3 dragOffset;
+
+
+    bool isWaiting = false;
+    float dragStartTime = 0f;
+
+    
+    bool followTarget = true;
+
+
+
+    void Start()
+    {
+        mainCamera = Camera.main;
+        startPosition = transform.position;
+    }
+
+    void Update()
+    {
+        if (!isDraggingSelf)
+        {
+            // 드래그가 끝나고 처음으로 이동이 시작되는 타이밍
+            if (wasDragging)
+            {
+                CheckIfOutsidePath();
+                wasDragging = false;
+            }
+
+            MoveTowardTarget();
+        }
+        if (isDraggingSelf)
+        {
+            float elapsed = Time.time - dragStartTime;
+            if (elapsed >= 5f)
+            {
+                Debug.Log($"드래그 5초 경과!");
+                dragStartTime = Time.time; // 5초 단위 반복을 위해 초기화
+            }
+        }
+
+        HandleMouseInput2D();
+    }
+
+    void MoveTowardTarget()
+    {
+        if (!followTarget || CurrentTarget == null || isWaiting) return;
+
+        transform.position = Vector3.MoveTowards(transform.position, CurrentTarget.position, moveSpeed * Time.deltaTime);
+
+        // 항상 타겟에 도달하면 판정 시도
+        if (!isWaiting && Vector3.Distance(transform.position, CurrentTarget.position) < 0.01f)
+        {
+            StartCoroutine(WaitAtTargetAndCheck());
+        }
+    }
+
+
+    void HandleMouseInput2D()
+    {
+        Vector3 mouseWorldPos = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 mousePos2D = new Vector2(mouseWorldPos.x, mouseWorldPos.y);
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            RaycastHit2D hit = Physics2D.Raycast(mousePos2D, Vector2.zero);
+            if (hit.collider != null && hit.transform == transform)
+            {
+                isDraggingSelf = true;
+                dragStartTime = Time.time; // 드래그 시작 시간 기록
+                dragOffset = transform.position - (Vector3)mousePos2D;
+            }
+        }
+
+        if (Input.GetMouseButton(0))
+        {
+            if (isDraggingTarget || isDraggingSelf)
+            {
+                Vector3 newPos = (Vector3)mousePos2D + dragOffset;
+
+                if (isDraggingTarget)
+                    CurrentTarget.position = new Vector3(newPos.x, newPos.y, CurrentTarget.position.z);
+                else if (isDraggingSelf)
+                    transform.position = new Vector3(newPos.x, newPos.y, transform.position.z);
+            }
+        }
+
+        if (Input.GetMouseButtonUp(0))
+        {
+            if (isDraggingSelf || isDraggingTarget)
+            {
+                wasDragging = true; // 드래그가 끝났음을 표시
+            }
+
+            isDraggingTarget = false;
+            isDraggingSelf = false;
+        }
+    }
+    
+
+    // 드래그가 멈추고 타겟을 향한 이동이 재개될 때 호출: 사전에 정한 경로를 벗어났는지 확인
+    void CheckIfOutsidePath()
+    {
+        if (CurrentTarget == null) return;
+
+        Vector3 lineStart = startPosition;
+        Vector3 lineEnd = CurrentTarget.position;
+        Vector3 current = transform.position;
+
+        Vector3 lineDir = (lineEnd - lineStart).normalized;
+        Vector3 toCurrent = current - lineStart;
+
+        // 선분의 길이
+        float lineLength = Vector3.Distance(lineStart, lineEnd);
+
+        // 선을 따라 projection (0 ~ lineLength)
+        float proj = Vector3.Dot(toCurrent, lineDir);
+
+        if (proj < 0 || proj > lineLength)
+        {
+            startPosition = transform.position;
+            //선에서 수직 거리가 계산 가능한 위치에 있음
+            return;
+        }
+
+        Vector3 closestPoint = lineStart + lineDir * proj;
+        float perpendicularDist = Vector3.Distance(closestPoint, current);
+
+        if (perpendicularDist > allowedDistanceFromPath)
+        {
+            startPosition = transform.position;
+            //선에서 수직 거리가 계산 불가능 한 위치에 있음
+        }
+    }
+
+
+
+    //N초 대기 후 NPC가 화면 마우스 클릭함
+    IEnumerator WaitAtTargetAndCheck()
+    {
+        isWaiting = true;
+        Debug.Log("타겟 도착 2초 대기");
+
+        yield return new WaitForSeconds(2f);
+
+        CheckObjectBelow();
+        isWaiting = false; //대기 종료
+    }
+
+
+
+    //타겟 확인은 여기서 호출하는게 맞는데, 타겟이 누구인지 판별을 여기서 하는게 아니라 해당 타겟에 붙어있는 A라는 스크립트를 호출하고, 그 스크립트에서 해당 동작을 실행하는게 맞다
+    void CheckObjectBelow()
+    {
+        //클릭 소리 재생
+        Vector2 center = transform.position;
+        Vector2 boxSize = new Vector2(0.2f, 0.2f); // 감지 범위 조절 가능
+
+        Collider2D[] hits = Physics2D.OverlapBoxAll(center, boxSize, 0f);
+
+        foreach (var hit in hits)
+        {
+            if (hit.gameObject == gameObject)
+                continue; // 자기 자신은 무시
+            if (hit.name == "cardSpades_8")
+            {
+                Debug.Log("카드 도착");
+                currentTargetIndex++;
+                startPosition = transform.position;
+                return;
+            }
+            else { 
+                Debug.Log("감지된 콜라이더 없음");
+                currentTargetIndex++;
+            }
+
+
+        }
+    }
+
+}
+

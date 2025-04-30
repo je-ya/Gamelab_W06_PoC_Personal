@@ -648,8 +648,7 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 682900807}
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -1531,16 +1530,16 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 682900806}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 455323848}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -882, y: -351}
+  m_AnchoredPosition: {x: -337, y: -90}
   m_SizeDelta: {x: 200, y: 300}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &682900808
@@ -1664,7 +1663,7 @@ MonoBehaviour:
   - {fileID: 1145386914}
   gameTray: {fileID: 662341372}
   currentTargetIndex: 0
-  moveSpeed: 5
+  moveSpeed: 2
   allowedDistanceFromPath: 0.1
   counter: 0
   messagePanel: {fileID: 1581690784}
@@ -1672,8 +1671,8 @@ MonoBehaviour:
   Decks:
   - {fileID: 482271161}
   counterBarImage: {fileID: 682900808}
-  HandOpText: {fileID: 670877640}
-  DiscardOpText: {fileID: 828669340}
+  HandOpText: {fileID: 904324624}
+  DiscardOpText: {fileID: 1208031474}
   splineContainer: {fileID: 887734120}
   splineDuration: 2
   cardGame: {fileID: 1655272544}
@@ -4897,9 +4896,9 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 752077606}
   - {fileID: 519420032}
   - {fileID: 619394802}
-  - {fileID: 752077606}
   - {fileID: 1142443861}
   - {fileID: 1179391753}
   - {fileID: 1655272545}
@@ -4907,3 +4906,4 @@ SceneRoots:
   - {fileID: 1581690788}
   - {fileID: 455323848}
   - {fileID: 887734121}
+  - {fileID: 682900807}
