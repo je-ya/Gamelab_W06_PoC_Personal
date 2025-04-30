@@ -1,24 +1,40 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class NpcReaction : MonoBehaviour
 {
+    [SerializeField]
+    int counter = 0;
 
-    public int counter = 0;
     public Image counterBarImage; // Inspector에서 연결
-    private bool warningShown = false;   // 반복 방지용
+    bool warningShown = false;   // 반복 방지용
 
-    public GameObject messagePanel;
+    public Canvas messageCanvas;
     public TextMeshProUGUI messageText;
+
     private Coroutine hideMessageCoroutine;
 
 
 
-
-    void UpdateCounterBar()
+    void Start()
     {
+        StressManager.Instance.OnStressChanged += UpdateStress;
+    }
+
+    void Update()
+    {
+    }
+
+
+    void UpdateStress(int stress)
+    {
+        Debug.Log($"스트레스 수치 업데이트 : {stress}");
+        counter = stress;
+
+
         float percent = Mathf.Clamp01(counter / 100f); // 0~1 사이로 변환
         if (counterBarImage != null)
             counterBarImage.fillAmount = percent;
@@ -33,15 +49,17 @@ public class NpcReaction : MonoBehaviour
                 ShowMessage("아 진짜...");
 
             else if (counter == 80)
-                ShowMessage("아!!!!!!!!!");
+                ShowMessage("진짜 오늘 왜이러지??");
         }
     }
 
 
+
+
     public void ShowMessage(string message, float duration = 3f)
     {
-        if (messagePanel != null)
-            messagePanel.SetActive(true);
+        if (messageCanvas != null)
+            messageCanvas.enabled = true;
 
         if (messageText != null)
             messageText.text = message;
@@ -57,8 +75,8 @@ public class NpcReaction : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
 
-        if (messagePanel != null)
-            messagePanel.SetActive(false);
+        if (messageCanvas != null)
+            messageCanvas.enabled = false;
 
         hideMessageCoroutine = null;
     }

@@ -29,12 +29,15 @@ public class NpcBehavior : MonoBehaviour
     
     bool followTarget = true;
 
+    NpcReaction reaction;
 
 
     void Start()
     {
         mainCamera = Camera.main;
         startPosition = transform.position;
+
+        reaction = FindAnyObjectByType<NpcReaction>();
     }
 
     void Update()
@@ -53,9 +56,18 @@ public class NpcBehavior : MonoBehaviour
         if (isDraggingSelf)
         {
             float elapsed = Time.time - dragStartTime;
-            if (elapsed >= 5f)
+            if (elapsed >= 3f)
             {
                 Debug.Log($"드래그 5초 경과!");
+
+                if (Random.value < 0.3f)
+                {
+                    reaction.ShowMessage("뭐지??");
+                    StressManager.Instance.IncreaseStress(10);
+                }
+                else reaction.ShowMessage("마우스 고장났나?");
+
+                
                 dragStartTime = Time.time; // 5초 단위 반복을 위해 초기화
             }
         }
@@ -140,6 +152,12 @@ public class NpcBehavior : MonoBehaviour
         if (proj < 0 || proj > lineLength)
         {
             startPosition = transform.position;
+            if (Random.value < 0.1f)
+            {
+                reaction.ShowMessage("이거 왜 이래?");
+                StressManager.Instance.IncreaseStress(10);
+            }
+            else reaction.ShowMessage("뒤로 간거 같은데..");
             //선에서 수직 거리가 계산 가능한 위치에 있음
             return;
         }
@@ -151,6 +169,16 @@ public class NpcBehavior : MonoBehaviour
         {
             startPosition = transform.position;
             //선에서 수직 거리가 계산 불가능 한 위치에 있음
+            
+            if (Random.value < 0.3f)
+            {
+
+                reaction.ShowMessage("마우스가 흔들린 것 같은데?");
+                StressManager.Instance.IncreaseStress(10);
+
+            }
+
+
         }
     }
 
@@ -194,7 +222,6 @@ public class NpcBehavior : MonoBehaviour
                 Debug.Log("감지된 콜라이더 없음");
                 currentTargetIndex++;
             }
-
 
         }
     }
