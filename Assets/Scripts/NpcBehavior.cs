@@ -271,11 +271,10 @@ public class NpcBehavior : MonoBehaviour
         if (draggable != null)
         {
             draggable.CancelDrag();
-            draggable.enabled = false;  // 완전 비활성화하면 이후 영구 해제
         }
 
         // 2) 물리 모드 전환 및 발사
-        rb.bodyType = RigidbodyType2D.Dynamic;
+        //rb.bodyType = RigidbodyType2D.Dynamic;
         Vector2 dir = (Vector2.up + Vector2.right * (Random.value < 0.5f ? -1 : 1)).normalized;
         rb.AddForce(dir * throwForce, ForceMode2D.Impulse);
     }
