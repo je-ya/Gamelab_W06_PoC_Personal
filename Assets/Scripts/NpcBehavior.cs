@@ -10,7 +10,7 @@ public class NpcBehavior : MonoBehaviour
     [SerializeField]
     int currentTargetIndex = 0;
     
-    float moveSpeed = 2f;
+    float moveSpeed = 3f;
     float allowedDistanceFromPath = 0.1f; // 경로에서 허용되는 거리
     Vector3 startPosition; // 현재 경로의 시작점
 
@@ -32,11 +32,23 @@ public class NpcBehavior : MonoBehaviour
     NpcReaction reaction;
 
 
+    [Header("흔들 설정")]
+    [SerializeField] float shakeDuration = 5f;    // 흔드는 총 시간
+    [SerializeField] float shakeAmplitude = 0.1f;  // 흔드는 진폭
+    [SerializeField] float shakeFrequency = 20f;   // 흔드는 속도
+    [SerializeField] float throwForce = 5f;    // 발사 힘
+
+    Rigidbody2D rb;
+
+    bool isDragging = false;
+    float shakeStartTime;
+
+
     void Start()
     {
         mainCamera = Camera.main;
         startPosition = transform.position;
-
+        rb = GetComponent<Rigidbody2D>();
         reaction = FindAnyObjectByType<NpcReaction>();
     }
 
@@ -53,22 +65,25 @@ public class NpcBehavior : MonoBehaviour
 
             MoveTowardTarget();
         }
-        if (isDraggingSelf)
+        if(isDraggingSelf)
         {
+
+            
             float elapsed = Time.time - dragStartTime;
             if (elapsed >= 3f)
             {
-                Debug.Log($"드래그 5초 경과!");
+                HandleDragWithShake();
+                //Debug.Log($"드래그 5초 경과!");
 
-                if (Random.value < 0.3f)
-                {
-                    reaction.ShowMessage("뭐지??");
-                    StressManager.Instance.IncreaseStress(10);
-                }
-                else reaction.ShowMessage("마우스 고장났나?");
+                //if (Random.value < 0.3f)
+                //{
+                //    reaction.ShowMessage("뭐지??");
+                //    StressManager.Instance.IncreaseStress(10);
+                //}
+                //else reaction.ShowMessage("마우스 고장났나?");
 
-                
-                dragStartTime = Time.time; // 5초 단위 반복을 위해 초기화
+
+                //dragStartTime = Time.time; // 5초 단위 반복을 위해 초기화
             }
         }
 
@@ -101,22 +116,23 @@ public class NpcBehavior : MonoBehaviour
             {
                 isDraggingSelf = true;
                 dragStartTime = Time.time; // 드래그 시작 시간 기록
+                shakeStartTime = Time.time;
                 dragOffset = transform.position - (Vector3)mousePos2D;
             }
         }
 
-        if (Input.GetMouseButton(0))
-        {
-            if (isDraggingTarget || isDraggingSelf)
-            {
-                Vector3 newPos = (Vector3)mousePos2D + dragOffset;
+        //if (Input.GetMouseButton(0))
+        //{
+        //    if (isDraggingTarget || isDraggingSelf)
+        //    {
+        //        Vector3 newPos = (Vector3)mousePos2D + dragOffset;
 
-                if (isDraggingTarget)
-                    CurrentTarget.position = new Vector3(newPos.x, newPos.y, CurrentTarget.position.z);
-                else if (isDraggingSelf)
-                    transform.position = new Vector3(newPos.x, newPos.y, transform.position.z);
-            }
-        }
+        //        if (isDraggingTarget)
+        //            CurrentTarget.position = new Vector3(newPos.x, newPos.y, CurrentTarget.position.z);
+        //        else if (isDraggingSelf)
+        //            transform.position = new Vector3(newPos.x, newPos.y, transform.position.z);
+        //    }
+        //}
 
         if (Input.GetMouseButtonUp(0))
         {
@@ -225,6 +241,45 @@ public class NpcBehavior : MonoBehaviour
 
         }
     }
+
+    void HandleDragWithShake()
+    {
+        // 1) 베이스 위치: 마우스 + offset
+        var mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector3 basePos = new Vector3(mouseWorld.x, mouseWorld.y, transform.position.z) + dragOffset;
+
+        // 2) 경과 시간에 따른 흔들 오프셋
+        float elapsed = Time.time - shakeStartTime;
+        if (elapsed < shakeDuration)
+        {
+            float xOffset = Mathf.Sin(elapsed * shakeFrequency) * shakeAmplitude;
+            transform.position = basePos + Vector3.right * xOffset;
+        }
+        else
+        {
+            wasDragging = true;
+            isDraggingTarget = false;
+            isDraggingSelf = false;
+            ThrowAway();
+        }
+    }
+
+    void ThrowAway()
+    {
+        // 1) DraggableObject 스크립트가 붙어 있으면, 강제 해제 및 비활성화
+        var draggable = GetComponent<DraggableObject>();
+        if (draggable != null)
+        {
+            draggable.CancelDrag();
+            draggable.enabled = false;  // 완전 비활성화하면 이후 영구 해제
+        }
+
+        // 2) 물리 모드 전환 및 발사
+        rb.bodyType = RigidbodyType2D.Dynamic;
+        Vector2 dir = (Vector2.up + Vector2.right * (Random.value < 0.5f ? -1 : 1)).normalized;
+        rb.AddForce(dir * throwForce, ForceMode2D.Impulse);
+    }
+
 
 }
 

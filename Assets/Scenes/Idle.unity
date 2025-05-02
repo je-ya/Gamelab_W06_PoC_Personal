@@ -281,12 +281,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   targets:
-  - {fileID: 1194617701}
-  - {fileID: 545463301}
-  - {fileID: 883627314}
-  - {fileID: 2010597587}
-  - {fileID: 1050964615}
   - {fileID: 1595130204}
+  - {fileID: 1194617701}
   currentTargetIndex: 0
   shakeDuration: 5
   shakeAmplitude: 0.2

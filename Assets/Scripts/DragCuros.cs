@@ -2,7 +2,12 @@
 
 public class DraggableObject : MonoBehaviour
 {
-    private bool isDragging = false;
+    private bool _isDragging = false;
+
+    public bool isDragging 
+    { get { return _isDragging; }
+        set { _isDragging = value; } }
+
     private Vector3 offset;
 
     void Update()
@@ -20,7 +25,7 @@ public class DraggableObject : MonoBehaviour
                 if (hit.transform == transform)
                 {
                     Debug.Log("마우스가 이 오브젝트 위에 있음: " + gameObject.name);
-                    isDragging = true;
+                    _isDragging = true;
                     offset = transform.position - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0));
                 }
                 else
@@ -37,16 +42,21 @@ public class DraggableObject : MonoBehaviour
         // 마우스 버튼을 놓으면 드래그 종료
         if (Input.GetMouseButtonUp(0))
         {
-            isDragging = false;
+            _isDragging = false;
             Debug.Log("드래그 종료");
         }
 
         // 드래그 중일 때 오브젝트 위치 업데이트
-        if (isDragging)
+        if (_isDragging)
         {
             Vector3 mousePosition = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0));
             transform.position = mousePosition + offset;
             //Debug.Log("드래그 중 - 오브젝트 위치: " + transform.position);
         }
+    }
+
+    public void CancelDrag()
+    {
+        isDragging = false;
     }
 }
