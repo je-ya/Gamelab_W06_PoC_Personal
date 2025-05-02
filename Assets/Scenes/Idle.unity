@@ -132,6 +132,7 @@ GameObject:
   - component: {fileID: 9412229}
   - component: {fileID: 9412231}
   - component: {fileID: 9412230}
+  - component: {fileID: 9412232}
   m_Layer: 0
   m_Name: user_cusor_0
   m_TagString: Untagged
@@ -287,6 +288,37 @@ MonoBehaviour:
   - {fileID: 1050964615}
   - {fileID: 1595130204}
   currentTargetIndex: 0
+  shakeDuration: 5
+  shakeAmplitude: 0.2
+  shakeFrequency: 20
+  throwForce: 5
+--- !u!50 &9412232
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9412226}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!1 &39321721
 GameObject:
   m_ObjectHideFlags: 0
@@ -1205,7 +1237,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uBC31\uC2E0\n"
+  m_text: "\uC9C1\uBC15\uAD6C\uB9AC"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2c17a3a4a8f2f25438a26f446b88905b, type: 2}
   m_sharedMaterial: {fileID: 1368046897609499352, guid: 2c17a3a4a8f2f25438a26f446b88905b, type: 2}
@@ -4040,7 +4072,7 @@ GameObject:
   - component: {fileID: 1595130205}
   - component: {fileID: 1595130206}
   m_Layer: 0
-  m_Name: Vaccine
+  m_Name: DeleteTargetFolder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4965,7 +4997,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uAE30\uBCF8 \uD3F4\uB354"
+  m_text: "\uB0B4 PC"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2c17a3a4a8f2f25438a26f446b88905b, type: 2}
   m_sharedMaterial: {fileID: 1368046897609499352, guid: 2c17a3a4a8f2f25438a26f446b88905b, type: 2}
