@@ -1,16 +1,9 @@
-using UnityEngine;
+﻿using UnityEngine;
 
-public class ClickableObject : MonoBehaviour
+public class ClickableObject : MonoBehaviour, IClickableObject
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public void OnNPCRightClick() 
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        Debug.Log($"{gameObject.name}이(가) 오른쪽 클릭됨!");
     }
 }

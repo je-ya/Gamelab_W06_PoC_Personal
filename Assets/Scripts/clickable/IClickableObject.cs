@@ -1,6 +1,6 @@
 ﻿public interface IClickableObject
 {
 
-    void OnNpcClickEvent();
+    void OnNPCRightClick();
 
 }

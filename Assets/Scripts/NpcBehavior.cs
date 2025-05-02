@@ -208,14 +208,13 @@ public class NpcBehavior : MonoBehaviour
 
         yield return new WaitForSeconds(2f);
 
-        CheckObjectBelow();
+        NPCClickRightMouse();
         isWaiting = false; //대기 종료
     }
 
 
 
-    //타겟 확인은 여기서 호출하는게 맞는데, 타겟이 누구인지 판별을 여기서 하는게 아니라 해당 타겟에 붙어있는 A라는 스크립트를 호출하고, 그 스크립트에서 해당 동작을 실행하는게 맞다
-    void CheckObjectBelow()
+    void NPCClickRightMouse()
     {
         //클릭 소리 재생
         Vector2 center = transform.position;
@@ -227,18 +226,19 @@ public class NpcBehavior : MonoBehaviour
         {
             if (hit.gameObject == gameObject)
                 continue; // 자기 자신은 무시
-            if (hit.name == "cardSpades_8")
-            {
-                Debug.Log("카드 도착");
-                currentTargetIndex++;
-                startPosition = transform.position;
-                return;
-            }
-            else { 
-                Debug.Log("감지된 콜라이더 없음");
-                currentTargetIndex++;
-            }
 
+            // IClickable 인터페이스를 가진 컴포넌트 찾기
+            IClickableObject clickable = hit.gameObject.GetComponent<IClickableObject>();
+
+            if (clickable != null)
+            {
+                clickable.OnNPCRightClick(); // 클릭 효과 실행
+                //currentTargetIndex++;
+            }
+            else
+            {
+                Debug.Log("IClickable 컴포넌트가 없음: " + hit.gameObject.name);
+            }
         }
     }
 
