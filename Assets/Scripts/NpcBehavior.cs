@@ -1,21 +1,28 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class NpcBehavior : MonoBehaviour
 {
-    public Transform[] targets;  // 여러 타겟 등록용
+
+    public StageData stageData;
+    List<StateConfig> states;
+
     public Transform CurrentTarget =>
-        (currentTargetIndex < targets.Length) ? targets[currentTargetIndex] : null;
+        (currentTargetIndex < states.Count && states[currentTargetIndex].targetObject != null)
+            ? states[currentTargetIndex].targetObject.transform
+            : null;
 
     [SerializeField]
     int currentTargetIndex = 0;
     
     float moveSpeed = 3f;
     float allowedDistanceFromPath = 0.1f; // 경로에서 허용되는 거리
-    Vector3 startPosition; // 현재 경로의 시작점
+
 
     Camera mainCamera;
 
+    Vector3 startPosition; // 현재 경로의 시작점
 
     bool wasDragging = false;
     bool isDraggingTarget = false;
@@ -40,12 +47,13 @@ public class NpcBehavior : MonoBehaviour
 
     Rigidbody2D rb;
 
-    bool isDragging = false;
     float shakeStartTime;
 
 
     void Start()
     {
+        states = new List<StateConfig>(stageData.states);
+
         mainCamera = Camera.main;
         startPosition = transform.position;
         rb = GetComponent<Rigidbody2D>();
@@ -92,16 +100,57 @@ public class NpcBehavior : MonoBehaviour
 
     void MoveTowardTarget()
     {
-        if (!followTarget || CurrentTarget == null || isWaiting) return;
+        if (CurrentTarget == null) return;
 
         transform.position = Vector3.MoveTowards(transform.position, CurrentTarget.position, moveSpeed * Time.deltaTime);
-
-        // 항상 타겟에 도달하면 판정 시도
-        if (!isWaiting && Vector3.Distance(transform.position, CurrentTarget.position) < 0.01f)
-        {
+        if (Vector3.Distance(transform.position, CurrentTarget.position) < 0.01f && !isWaiting)
             StartCoroutine(WaitAtTargetAndCheck());
+    }
+
+    IEnumerator WaitAtTargetAndCheck()
+    {
+        isWaiting = true;
+        yield return new WaitForSeconds(2f);
+
+        var config = states[currentTargetIndex];
+        PerformReachBehavior(config);
+
+        // 다음 상태로 넘어가기
+        currentTargetIndex++;
+        isWaiting = false;
+    }
+
+    void PerformReachBehavior(StateConfig config)
+    {
+        GameObject targetGO = config.targetObject;
+        ReachBehaviorType behavior = config.stateType;
+
+        IClickableObject clickable = targetGO.GetComponent<IClickableObject>();
+
+        switch (behavior)
+        {
+            case ReachBehaviorType.RightClick:
+                if (clickable != null) clickable.OnNpcRightClick();
+                break;
+
+            case ReachBehaviorType.LeftClick:
+                if (clickable != null) clickable.OnNpcLeftClick();
+                break;
+
+            case ReachBehaviorType.DoubleClick:
+                if (clickable != null) clickable.OnNpcDoubleClick();
+                break;
+
+            case ReachBehaviorType.DragToTarget:
+                if (clickable != null) clickable.OnNpcDrag();
+                break;
+
+            case ReachBehaviorType.Custom:
+                SendMessage("OnNPCCustom", targetGO, SendMessageOptions.DontRequireReceiver);
+                break;
         }
     }
+
 
 
     void HandleMouseInput2D()
@@ -200,19 +249,6 @@ public class NpcBehavior : MonoBehaviour
 
 
 
-    //N초 대기 후 NPC가 화면 마우스 클릭함
-    IEnumerator WaitAtTargetAndCheck()
-    {
-        isWaiting = true;
-        Debug.Log("타겟 도착 2초 대기");
-
-        yield return new WaitForSeconds(2f);
-
-        NPCClickRightMouse();
-        isWaiting = false; //대기 종료
-    }
-
-
 
     void NPCClickRightMouse()
     {
@@ -232,7 +268,7 @@ public class NpcBehavior : MonoBehaviour
 
             if (clickable != null)
             {
-                clickable.OnNPCRightClick(); // 클릭 효과 실행
+                clickable.OnNpcRightClick(); // 클릭 효과 실행
                 //currentTargetIndex++;
             }
             else

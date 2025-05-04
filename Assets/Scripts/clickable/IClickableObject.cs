@@ -1,6 +1,11 @@
 ﻿public interface IClickableObject
 {
 
-    void OnNPCRightClick();
+    void OnNpcRightClick();
 
+    void OnNpcLeftClick();
+
+    void OnNpcDoubleClick();
+
+    void OnNpcDrag();
 }

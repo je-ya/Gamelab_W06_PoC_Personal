@@ -12,26 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da46c2eba70daa34593d45a9da2781b4, type: 3}
   m_Name: IdleStageData
   m_EditorClassIdentifier: 
-  stageName: 
+  stageName: Idle
   states:
-  - stateName: 
+  - stateName: MoveToFolder
     targetObject: {fileID: 0}
-    stateType: 0
-  - stateName: 
+    stateType: 1
+  - stateName: DragFolder
     targetObject: {fileID: 0}
-    stateType: 0
-  - stateName: 
+    stateType: 3
+  - stateName: ClickTrashCan
     targetObject: {fileID: 0}
-    stateType: 0
-  - stateName: 
+    stateType: 2
+  - stateName: MoveToClear
     targetObject: {fileID: 0}
-    stateType: 0
-  - stateName: 
+    stateType: 1
+  - stateName: MoveToYes
     targetObject: {fileID: 0}
-    stateType: 0
-  - stateName: 
-    targetObject: {fileID: 0}
-    stateType: 0
-  - stateName: 
-    targetObject: {fileID: 0}
-    stateType: 0
+    stateType: 1
