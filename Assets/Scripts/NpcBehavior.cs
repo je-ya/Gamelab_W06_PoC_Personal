@@ -43,6 +43,8 @@ public class NpcBehavior : MonoBehaviour
     bool isDragging = false;
     float shakeStartTime;
 
+    bool endDrag;
+
 
     void Start()
     {
@@ -86,6 +88,21 @@ public class NpcBehavior : MonoBehaviour
                 //dragStartTime = Time.time; // 5초 단위 반복을 위해 초기화
             }
         }
+
+
+        if (isDragging && targetObject != null)
+        {
+            targetObject.transform.position = transform.position;
+
+            if (endDrag == false)
+            {
+                targetObject.transform.position = transform.position;
+                isDragging = false;
+                targetObject = null;
+                Debug.Log("오브젝트가 다음 위치에 놓였습니다: " + transform.position);
+            }
+        }
+
 
         HandleMouseInput2D();
     }
@@ -208,14 +225,13 @@ public class NpcBehavior : MonoBehaviour
 
         yield return new WaitForSeconds(2f);
 
-        CheckObjectBelow();
+        NpcLeftClick();
         isWaiting = false; //대기 종료
     }
 
 
 
-    //타겟 확인은 여기서 호출하는게 맞는데, 타겟이 누구인지 판별을 여기서 하는게 아니라 해당 타겟에 붙어있는 A라는 스크립트를 호출하고, 그 스크립트에서 해당 동작을 실행하는게 맞다
-    void CheckObjectBelow()
+    void NpcLeftClick()
     {
         //클릭 소리 재생
         Vector2 center = transform.position;
@@ -227,9 +243,10 @@ public class NpcBehavior : MonoBehaviour
         {
             if (hit.gameObject == gameObject)
                 continue; // 자기 자신은 무시
-            if (hit.name == "cardSpades_8")
+            if (hit.name == "DeleteTargetFolder")
             {
-                Debug.Log("카드 도착");
+                Debug.Log("삭제할 오브젝트 클릭 성공");
+                DragObject();
                 currentTargetIndex++;
                 startPosition = transform.position;
                 return;
@@ -241,6 +258,37 @@ public class NpcBehavior : MonoBehaviour
 
         }
     }
+
+
+    private GameObject targetObject = null;
+    void DragObject()
+    {
+        if (targetObject == null)
+        {
+            Vector2 center = transform.position;
+            Vector2 boxSize = new Vector2(0.2f, 0.2f);
+            Collider2D[] hits = Physics2D.OverlapBoxAll(center, boxSize, 0f);
+
+            foreach (var hit in hits)
+            {
+                if (hit.gameObject == gameObject)
+                    continue;
+                if (hit.name == "DeleteTargetFolder")
+                {
+                    targetObject = hit.gameObject;
+                    isDragging = true;
+                    break;
+                }
+            }
+
+            if (targetObject == null)
+            {
+                Debug.Log("드래그할 타겟 오브젝트가 없습니다");
+                return;
+            }
+        }
+    }
+
 
     void HandleDragWithShake()
     {
