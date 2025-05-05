@@ -41,12 +41,19 @@ public class NpcBehavior : MonoBehaviour
 
     bool trshcanFlag = false;
     bool openFlag = false;
+
+
+
     [Header("활성화 될 창")]
     public List<GameObject> objectList;
     Dictionary<string, GameObject> objectDict;
     public List<GameObject> trayList;
 
-
+    [Header("창 활성화 이후")]
+    Stack<GameObject> activeObjects = new Stack<GameObject>();
+    bool isRemovingWindow = false;
+    GameObject removeTarget;
+    Transform exitButton; // Exit 자식 오브젝트
 
     [Header("흔들 설정")]
     [SerializeField] float shakeDuration = 5f;    // 흔드는 총 시간
@@ -87,7 +94,16 @@ public class NpcBehavior : MonoBehaviour
                 wasDragging = false;
             }
 
-            MoveTowardTarget();
+
+            //다른 창 열리면 종료하려고 해야하고, 창이 최소화되거나 종료되면 다시 켜야함
+            if (isRemovingWindow && removeTarget != null && exitButton != null)
+            {
+                MoveAIToExitButton();
+            }
+            else
+            {
+                MoveTowardTarget();
+            }
         }
         if (isDraggingSelf)
         {
@@ -126,9 +142,16 @@ public class NpcBehavior : MonoBehaviour
 
         transform.position = Vector3.MoveTowards(transform.position, CurrentTarget.position, moveSpeed * Time.deltaTime);
 
+        if (CurrentTarget != null && !CurrentTarget.gameObject.activeInHierarchy)
+        {
+            currentTargetIndex--;
+            openFlag = true;
+        }
+
         // 항상 타겟에 도달하면 판정 시도
         if (!isWaiting && Vector3.Distance(transform.position, CurrentTarget.position) < 0.01f)
         {
+
             WaitAtTargetAndCheckDrag();
             Debug.Log("판정합니다!");
             if (isDragging)
@@ -145,6 +168,7 @@ public class NpcBehavior : MonoBehaviour
                 }
                 else
                 {
+
                     Debug.Log("클릭 해야함");
                     StartCoroutine(WaitAtTargetAndCheck());
                 }
@@ -403,7 +427,7 @@ public class NpcBehavior : MonoBehaviour
             else if (hit.name == "Folder")
             {
                 Debug.Log("내PC 폴더 클릭됨");
-                objectList[3].SetActive(true);
+                ActivateObject(3, hit.name);
                 SetActiveObjectText(hit.name);
                 startPosition = transform.position;
                 return;
@@ -411,7 +435,7 @@ public class NpcBehavior : MonoBehaviour
             else if (hit.name == "Messenger")
             {
                 Debug.Log("메신저 클릭됨");
-                objectList[6].SetActive(true);
+                ActivateObject(6, hit.name);
                 SetActiveObjectText(hit.name);
                 startPosition = transform.position;
                 return;
@@ -419,7 +443,7 @@ public class NpcBehavior : MonoBehaviour
             else if (hit.name == "Game")
             {
                 Debug.Log("게임 클릭됨");
-                objectList[7].SetActive(true);
+                ActivateObject(7, hit.name);
                 SetActiveObjectText(hit.name);
                 startPosition = transform.position;
                 return;
@@ -427,7 +451,7 @@ public class NpcBehavior : MonoBehaviour
             else if (hit.name == "Internet")
             {
                 Debug.Log("인터넷 클릭됨");
-                objectList[5].SetActive(true);
+                ActivateObject(5, hit.name);
                 SetActiveObjectText(hit.name);
                 startPosition = transform.position;
                 return;
@@ -435,7 +459,7 @@ public class NpcBehavior : MonoBehaviour
             else if (hit.name == "DeleteTargetFolder")
             {
                 Debug.Log("타겟 폴더 클릭됨");
-                objectList[4].SetActive(true);
+                ActivateObject(4, hit.name);
                 SetActiveObjectText(hit.name);
                 startPosition = transform.position;
                 return;
@@ -445,6 +469,61 @@ public class NpcBehavior : MonoBehaviour
                 Debug.Log("감지된 콜라이더 없음");
             }
 
+        }
+    }
+
+
+    private void ActivateObject(int index, string objectName)
+    {
+        GameObject obj = objectList[index];
+        if (!obj.activeSelf)
+        {
+            obj.SetActive(true);
+            activeObjects.Push(obj); // 스택에 추가
+            SetActiveObjectText(objectName); // 기존 텍스트 설정 함수
+        }
+
+        // 이미 켜져 있으면 치우기 시작
+        StartCleaning(obj);
+    }
+
+    private void StartCleaning(GameObject target)
+    {
+        if (!isRemovingWindow)
+        {
+            isRemovingWindow = true;
+            removeTarget = target;
+            // Exit 자식 오브젝트 찾기
+            exitButton = removeTarget.transform.Find("Exit");
+            if (exitButton == null)
+            {
+                Debug.LogError("Exit 자식 오브젝트를 찾을 수 없습니다!");
+                isRemovingWindow = false;
+                removeTarget = null;
+            }
+        }
+    }
+
+
+    private void MoveAIToExitButton()
+    {
+        Vector3 targetPosition = exitButton.position;
+        transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+        // AI가 Exit 버튼에 충분히 가까워지면 NpcLeftClick 호출
+        if (Vector3.Distance(transform.position, targetPosition) < 0.01f)
+        {
+            WaitAtTargetAndCheckDrag();
+            NpcLeftClick(); // 기존 함수 호출
+            activeObjects.Pop(); // 스택에서 제거
+            isRemovingWindow = false;
+            removeTarget = null;
+            exitButton = null;
+
+            // 스택에 남은 오브젝트가 있으면 다음 오브젝트 치우기
+            if (activeObjects.Count > 0)
+            {
+                StartCleaning(activeObjects.Peek());
+            }
         }
     }
 
