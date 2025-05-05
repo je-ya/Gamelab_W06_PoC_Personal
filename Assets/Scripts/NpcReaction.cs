@@ -23,9 +23,7 @@ public class NpcReaction : MonoBehaviour
         StressManager.Instance.OnStressChanged += UpdateStress;
     }
 
-    void Update()
-    {
-    }
+
 
 
     void UpdateStress(int stress)

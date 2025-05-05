@@ -252,7 +252,7 @@ public class NpcBehavior : MonoBehaviour
             {
 
                 reaction.ShowMessage("마우스가 흔들린 것 같은데?");
-                StressManager.Instance.IncreaseStress(10);
+                StressManager.Instance.IncreaseStress(1);
 
             }
         }
@@ -647,13 +647,12 @@ public class NpcBehavior : MonoBehaviour
 
     void ThrowAway()
     {
-        // 1) DraggableObject 스크립트가 붙어 있으면, 강제 해제 및 비활성화
+        //DraggableObject 스크립트가 붙어 있으면, 강제 해제 함수 호출
         var draggable = GetComponent<DraggableObject>();
         if (draggable != null)
         {
             draggable.CancelDrag();
         }
-
 
     }
 
