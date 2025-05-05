@@ -145,6 +145,7 @@ public class NpcBehavior : MonoBehaviour
         if (CurrentTarget != null && !CurrentTarget.gameObject.activeInHierarchy)
         {
             currentTargetIndex--;
+            if(currentTargetIndex ==2)
             openFlag = true;
         }
 
@@ -235,7 +236,9 @@ public class NpcBehavior : MonoBehaviour
                 reaction.ShowMessage("이거 왜 이래?");
                 StressManager.Instance.IncreaseStress(10);
             }
-            else reaction.ShowMessage("뒤로 간거 같은데..");
+            else { reaction.ShowMessage("뒤로 간거 같은데..");
+                StressManager.Instance.IncreaseStress(1);
+            }
             //선에서 수직 거리가 계산 가능한 위치에 있음
             return;
         }
@@ -252,9 +255,10 @@ public class NpcBehavior : MonoBehaviour
             {
 
                 reaction.ShowMessage("마우스가 흔들린 것 같은데?");
-                StressManager.Instance.IncreaseStress(1);
+                StressManager.Instance.IncreaseStress(10);
 
             }
+            else StressManager.Instance.IncreaseStress(1);
         }
     }
 
@@ -635,6 +639,9 @@ public class NpcBehavior : MonoBehaviour
         {
             float xOffset = Mathf.Sin(elapsed * shakeFrequency) * shakeAmplitude;
             transform.position = basePos + Vector3.right * xOffset;
+
+
+
         }
         else
         {
@@ -652,6 +659,7 @@ public class NpcBehavior : MonoBehaviour
         if (draggable != null)
         {
             draggable.CancelDrag();
+            reaction.ShowMessage("아, 움직인다.");
         }
 
     }

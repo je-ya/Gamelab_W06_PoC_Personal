@@ -10,7 +10,7 @@ public class StressManager : MonoBehaviour
     private float lastStressTime; // 마지막 스트레스 증가 시간
     private float stressDecreaseDelay = 5f; // 스트레스 감소 대기 시간 (초)
     private float stressDecreaseInterval = 1f; // 스트레스 감소 주기 (초)
-    private int stressDecreaseAmount = 5; // 한 번에 감소하는 스트레스 양
+    private int stressDecreaseAmount = 1; // 한 번에 감소하는 스트레스 양
 
     // 스트레스 변경 시 호출되는 Action
     public Action<int> OnStressChanged;
