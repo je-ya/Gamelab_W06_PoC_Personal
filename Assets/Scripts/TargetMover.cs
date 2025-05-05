@@ -1,8 +1,8 @@
-﻿using UnityEngine;
-using System.Collections;
-using UnityEngine.UI;
+﻿using System.Collections;
 using TMPro;
+using UnityEngine;
 using UnityEngine.Splines;
+using UnityEngine.UI;
 
 
 public class TargetMover : MonoBehaviour
@@ -59,7 +59,7 @@ public class TargetMover : MonoBehaviour
         mainCamera = Camera.main;
         startPosition = transform.position;
 
-       
+
     }
 
     void Update()
@@ -143,8 +143,8 @@ public class TargetMover : MonoBehaviour
         Vector3 mouseWorldPos = mainCamera.ScreenToWorldPoint(Input.mousePosition);
         Vector2 mousePos2D = new Vector2(mouseWorldPos.x, mouseWorldPos.y);
 
-if (Input.GetMouseButtonDown(0))
-{
+        if (Input.GetMouseButtonDown(0))
+        {
             RaycastHit2D hit = Physics2D.Raycast(mousePos2D, Vector2.zero);
             if (hit.collider != null && hit.transform == transform)
             {
@@ -304,7 +304,7 @@ if (Input.GetMouseButtonDown(0))
         {
             if (hit.gameObject == gameObject)
                 continue; // 자기 자신은 무시
-            if(hit.name == "cardSpades_8")
+            if (hit.name == "cardSpades_8")
             {
                 Debug.Log("카드 도착");
                 hit.transform.position += new Vector3(0f, 0.3f, 0f);
@@ -321,9 +321,9 @@ if (Input.GetMouseButtonDown(0))
                 ShowMessage("잉?");
                 currentTargetIndex++;
                 StartSplineFollow();
-                
+
             }
-            else if (hit.name == "Discard_0"&& cardSelected)
+            else if (hit.name == "Discard_0" && cardSelected)
             {
                 Debug.Log("버리기-1");
 
@@ -332,17 +332,17 @@ if (Input.GetMouseButtonDown(0))
                 DiscardOp--;
                 targets[0].gameObject.SetActive(false);
             }
-            else if(hit.name == "bar")
+            else if (hit.name == "bar")
             {
                 followTarget = false;
                 cardGame.GetComponent<MinimizeToTrayEffect>().StartMinimizeEffect();
                 StartCoroutine(WaitSecond());
                 ShowMessage("어!!");
             }
-            else if(hit.name == "System Tray icon")
+            else if (hit.name == "System Tray icon")
             {
                 cardGame.GetComponent<MinimizeToTrayEffect>().StartRestoreEffect();
-                StartCoroutine(WaitSecondforTarget()); 
+                StartCoroutine(WaitSecondforTarget());
             }
             else Debug.Log("감지된 콜라이더 없음");
 
@@ -352,15 +352,15 @@ if (Input.GetMouseButtonDown(0))
 
     void UpdateCounterBar()
     {
-        float percent = Mathf.Clamp01(counter/100f); // 0~1 사이로 변환
+        float percent = Mathf.Clamp01(counter / 100f); // 0~1 사이로 변환
         if (counterBarImage != null)
             counterBarImage.fillAmount = percent;
 
 
         if (!warningShown && counter >= 20)
         {
-            if(counter == 20)
-            ShowMessage("뭐야??");
+            if (counter == 20)
+                ShowMessage("뭐야??");
 
             else if (counter == 30)
                 ShowMessage("아 진짜...");
@@ -403,7 +403,7 @@ if (Input.GetMouseButtonDown(0))
     }
 
 
-    
+
     float moveDuration = 0.5f;
     bool specialTriggered = false;
 

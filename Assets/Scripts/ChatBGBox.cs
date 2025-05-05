@@ -1,6 +1,5 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
+﻿using TMPro;
+using UnityEngine;
 
 [ExecuteAlways] // 에디터에서도 작동
 public class ChatBGBox : MonoBehaviour

@@ -1,7 +1,7 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using UnityEngine;
 
 
 
@@ -17,7 +17,7 @@ public class NpcBehavior : MonoBehaviour
     [Header("지금 향하고 있는 타겟 번호")]
     [SerializeField]
     int currentTargetIndex = 0;
-    
+
     float moveSpeed = 4f;
     float allowedDistanceFromPath = 0.1f; // 경로에서 허용되는 거리
     Vector3 startPosition; // 현재 경로의 시작점
@@ -34,24 +34,24 @@ public class NpcBehavior : MonoBehaviour
     bool isWaiting = false;
     float dragStartTime = 0f;
 
-    
+
     bool followTarget = true;
 
     NpcReaction reaction;
 
-    bool trshcanflag =false;
+    bool trshcanFlag = false;
+    bool openFlag = false;
     [Header("활성화 될 창")]
     public List<GameObject> objectList;
     Dictionary<string, GameObject> objectDict;
     public List<GameObject> trayList;
-    
+
 
 
     [Header("흔들 설정")]
     [SerializeField] float shakeDuration = 5f;    // 흔드는 총 시간
     [SerializeField] float shakeAmplitude = 0.1f;  // 흔드는 진폭
     [SerializeField] float shakeFrequency = 20f;   // 흔드는 속도
-    [SerializeField] float throwForce = 5f;    // 발사 힘
     float shakeStartTime;
 
     Rigidbody2D rb;
@@ -89,10 +89,10 @@ public class NpcBehavior : MonoBehaviour
 
             MoveTowardTarget();
         }
-        if(isDraggingSelf)
+        if (isDraggingSelf)
         {
 
-            
+
             float elapsed = Time.time - dragStartTime;
             if (elapsed >= 3f)
             {
@@ -111,8 +111,8 @@ public class NpcBehavior : MonoBehaviour
                 targetObject.layer = originalTargetLayer;
                 targetObject.transform.position = transform.position;
                 isDragging = false;
-                targetObject = null;
                 Debug.Log("오브젝트가 다음 위치에 놓였습니다: " + transform.position);
+                targetObject = null;
             }
         }
 
@@ -129,12 +129,25 @@ public class NpcBehavior : MonoBehaviour
         // 항상 타겟에 도달하면 판정 시도
         if (!isWaiting && Vector3.Distance(transform.position, CurrentTarget.position) < 0.01f)
         {
-            if (isDragging) {
+            WaitAtTargetAndCheckDrag();
+            Debug.Log("판정합니다!");
+            if (isDragging)
+            {
+                Debug.Log("드래그 해야함");
                 NpcClickDrag();
             }
             else
             {
-                StartCoroutine(WaitAtTargetAndCheck());
+                if (openFlag)
+                {
+                    Debug.Log("더블클릭 해야함");
+                    StartCoroutine(WaitAtTargetAndCheckDouble());
+                }
+                else
+                {
+                    Debug.Log("클릭 해야함");
+                    StartCoroutine(WaitAtTargetAndCheck());
+                }
             }
         }
     }
@@ -170,7 +183,7 @@ public class NpcBehavior : MonoBehaviour
             isDraggingSelf = false;
         }
     }
-    
+
 
     // 드래그가 멈추고 타겟을 향한 이동이 재개될 때 호출: 사전에 정한 경로를 벗어났는지 확인
     void CheckIfOutsidePath()
@@ -210,7 +223,7 @@ public class NpcBehavior : MonoBehaviour
         {
             startPosition = transform.position;
             //선에서 수직 거리가 계산 불가능 한 위치에 있음
-            
+
             if (Random.value < 0.3f)
             {
 
@@ -227,12 +240,29 @@ public class NpcBehavior : MonoBehaviour
     IEnumerator WaitAtTargetAndCheck()
     {
         isWaiting = true;
-        Debug.Log("타겟 도착 2초 대기");
+        Debug.Log("타겟 도착 1초 대기");
 
         yield return new WaitForSeconds(1f);
 
         NpcLeftClick();
         isWaiting = false; //대기 종료
+    }
+
+
+    IEnumerator WaitAtTargetAndCheckDouble()
+    {
+        isWaiting = true;
+        Debug.Log("타겟 도착 1초 대기");
+
+        yield return new WaitForSeconds(1f);
+
+        NpcDoubleClick();
+        isWaiting = false; //대기 종료
+    }
+
+    IEnumerator WaitAtTargetAndCheckDrag()
+    {
+        yield return new WaitForSeconds(.5f);
     }
 
 
@@ -257,67 +287,14 @@ public class NpcBehavior : MonoBehaviour
                 startPosition = transform.position;
                 return;
             }
-            else if (hit.name == "Trashcan")
-            {
-                Debug.Log("쓰래기통 폴더 클릭");
-                objectList[0].SetActive(true);
-                SetActiveObjectText(hit.name);
-                if (trshcanflag)
-                {
-                    currentTargetIndex++;
-                }
-                startPosition = transform.position;
-
-                return;
-            }
-            else if(hit.name == "ClearButton")
+            else if (hit.name == "ClearButton")
             {
                 Debug.Log("비우기 버튼 클릭됨");
                 objectList[2].SetActive(true);
-                if (trshcanflag)
+                if (trshcanFlag)
                 {
                     currentTargetIndex++;
                 }
-                startPosition = transform.position;
-                return;
-            }
-            else if (hit.name == "Folder")
-            {
-                Debug.Log("내PC 폴더 클릭됨");
-                objectList[3].SetActive(true);
-                SetActiveObjectText(hit.name);
-                startPosition = transform.position;
-                return;
-            }
-            else if (hit.name == "Messenger")
-            {
-                Debug.Log("메신저 클릭됨");
-                objectList[6].SetActive(true);
-                SetActiveObjectText(hit.name);
-                startPosition = transform.position;
-                return;
-            }
-            else if (hit.name == "Game")
-            {
-                Debug.Log("게임 클릭됨");
-                objectList[7].SetActive(true);
-                SetActiveObjectText(hit.name);
-                startPosition = transform.position;
-                return;
-            }
-            else if (hit.name == "Internet")
-            {
-                Debug.Log("인터넷 클릭됨");
-                objectList[5].SetActive(true);
-                SetActiveObjectText(hit.name);
-                startPosition = transform.position;
-                return;
-            }
-            else if (hit.name == "DeleteTargetFolder")
-            {
-                Debug.Log("타겟 폴더 클릭됨");
-                objectList[4].SetActive(true);
-                SetActiveObjectText(hit.name);
                 startPosition = transform.position;
                 return;
             }
@@ -387,7 +364,84 @@ public class NpcBehavior : MonoBehaviour
                 startPosition = transform.position;
                 return;
             }
-            else { 
+            else
+            {
+                Debug.Log("감지된 콜라이더 없음");
+            }
+
+        }
+    }
+
+
+    void NpcDoubleClick()
+    {
+        Debug.Log("더블클릭해야해!");
+        //클릭 소리 재생
+        Vector2 center = transform.position;
+        Vector2 boxSize = new Vector2(0.2f, 0.2f); // 감지 범위 조절 가능
+
+        Collider2D[] hits = Physics2D.OverlapBoxAll(center, boxSize, 0f);
+
+        foreach (var hit in hits)
+        {
+            if (hit.gameObject == gameObject)
+                continue; // 자기 자신은 무시
+            else if (hit.name == "Trashcan")
+            {
+                Debug.Log("쓰래기통 폴더 클릭");
+                objectList[0].SetActive(true);
+                SetActiveObjectText(hit.name);
+                if (trshcanFlag)
+                {
+                    currentTargetIndex++;
+                }
+                openFlag = false;
+                startPosition = transform.position;
+
+                return;
+            }
+            else if (hit.name == "Folder")
+            {
+                Debug.Log("내PC 폴더 클릭됨");
+                objectList[3].SetActive(true);
+                SetActiveObjectText(hit.name);
+                startPosition = transform.position;
+                return;
+            }
+            else if (hit.name == "Messenger")
+            {
+                Debug.Log("메신저 클릭됨");
+                objectList[6].SetActive(true);
+                SetActiveObjectText(hit.name);
+                startPosition = transform.position;
+                return;
+            }
+            else if (hit.name == "Game")
+            {
+                Debug.Log("게임 클릭됨");
+                objectList[7].SetActive(true);
+                SetActiveObjectText(hit.name);
+                startPosition = transform.position;
+                return;
+            }
+            else if (hit.name == "Internet")
+            {
+                Debug.Log("인터넷 클릭됨");
+                objectList[5].SetActive(true);
+                SetActiveObjectText(hit.name);
+                startPosition = transform.position;
+                return;
+            }
+            else if (hit.name == "DeleteTargetFolder")
+            {
+                Debug.Log("타겟 폴더 클릭됨");
+                objectList[4].SetActive(true);
+                SetActiveObjectText(hit.name);
+                startPosition = transform.position;
+                return;
+            }
+            else
+            {
                 Debug.Log("감지된 콜라이더 없음");
             }
 
@@ -409,37 +463,29 @@ public class NpcBehavior : MonoBehaviour
             if (hit.name == "Trashcan")
             {
                 Debug.Log("쓰래기통으로 드래그");
-                    if (targetObject.name == "DeleteTargetFolder")
-                    {
-                        Debug.Log("삭제할 타겟이다!");
-                        targetObject.SetActive(false);
-                        endDrag = true;
-                        trshcanflag =true;
+                if (targetObject.name == "DeleteTargetFolder")
+                {
+                    Debug.Log("삭제할 타겟이다!");
+                    targetObject.SetActive(false);
+                    endDrag = true;
+                    openFlag = true;
+                    trshcanFlag = true;
 
-                        currentTargetIndex++;
-                    }
-                    else
-                    {
-                        Debug.Log("다른 타겟이지만..");
-                        targetObject.SetActive(false);
+                    currentTargetIndex++;
+                }
+                else
+                {
+                    Debug.Log("다른 타겟이지만..");
+                    targetObject.SetActive(false);
 
-                    }
+                }
                 startPosition = transform.position;
                 return;
             }
-            if (hit.name == "DeleteTargetFolder")
-            {
-                Debug.Log("직박구리 폴더로 드래그");
 
-                targetObject.SetActive(false);
-
-                startPosition = transform.position;
-                return;
-            }
             else
             {
                 Debug.Log("감지된 콜라이더 없음");
-                currentTargetIndex++;
             }
 
         }
