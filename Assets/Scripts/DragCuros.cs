@@ -4,9 +4,11 @@ public class DraggableObject : MonoBehaviour
 {
     private bool _isDragging = false;
 
-    public bool isDragging 
-    { get { return _isDragging; }
-        set { _isDragging = value; } }
+    public bool isDragging
+    {
+        get { return _isDragging; }
+        set { _isDragging = value; }
+    }
 
     private Vector3 offset;
 
@@ -17,7 +19,10 @@ public class DraggableObject : MonoBehaviour
         {
             // 2D Raycast를 위해 월드 좌표로 변환된 마우스 위치 사용
             Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero);
+
+            // "Cursor" 레이어만 감지하도록 레이어 마스크 설정
+            LayerMask cursorLayer = LayerMask.GetMask("Cursor");
+            RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero, Mathf.Infinity, cursorLayer);
 
             if (hit.collider != null)
             {

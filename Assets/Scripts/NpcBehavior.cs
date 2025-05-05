@@ -1,16 +1,23 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+
+
+
 
 public class NpcBehavior : MonoBehaviour
 {
+
+    [Header("NPC 행동 타겟")]
     public Transform[] targets;  // 여러 타겟 등록용
     public Transform CurrentTarget =>
         (currentTargetIndex < targets.Length) ? targets[currentTargetIndex] : null;
 
+    [Header("지금 향하고 있는 타겟 번호")]
     [SerializeField]
     int currentTargetIndex = 0;
     
-    float moveSpeed = 3f;
+    float moveSpeed = 4f;
     float allowedDistanceFromPath = 0.1f; // 경로에서 허용되는 거리
     Vector3 startPosition; // 현재 경로의 시작점
 
@@ -31,19 +38,32 @@ public class NpcBehavior : MonoBehaviour
 
     NpcReaction reaction;
 
+    bool trshcanflag =false;
+    [Header("활성화 될 창")]
+    public List<GameObject> objectList;
+    Dictionary<string, GameObject> objectDict;
+    
+
 
     [Header("흔들 설정")]
     [SerializeField] float shakeDuration = 5f;    // 흔드는 총 시간
     [SerializeField] float shakeAmplitude = 0.1f;  // 흔드는 진폭
     [SerializeField] float shakeFrequency = 20f;   // 흔드는 속도
     [SerializeField] float throwForce = 5f;    // 발사 힘
+    float shakeStartTime;
 
     Rigidbody2D rb;
 
-    bool isDragging = false;
-    float shakeStartTime;
 
+    [Header("드래그 앤 드롭 설정")]
+    bool isDragging = false;
     bool endDrag;
+    private LayerMask raycastLayerMask; // 인스펙터에서 설정할 레이어 마스크
+    private int originalTargetLayer;
+    private GameObject targetObject = null;
+
+
+
 
 
     void Start()
@@ -75,17 +95,7 @@ public class NpcBehavior : MonoBehaviour
             if (elapsed >= 3f)
             {
                 HandleDragWithShake();
-                //Debug.Log($"드래그 5초 경과!");
 
-                //if (Random.value < 0.3f)
-                //{
-                //    reaction.ShowMessage("뭐지??");
-                //    StressManager.Instance.IncreaseStress(10);
-                //}
-                //else reaction.ShowMessage("마우스 고장났나?");
-
-
-                //dragStartTime = Time.time; // 5초 단위 반복을 위해 초기화
             }
         }
 
@@ -94,8 +104,9 @@ public class NpcBehavior : MonoBehaviour
         {
             targetObject.transform.position = transform.position;
 
-            if (endDrag == false)
+            if (endDrag == true)
             {
+                targetObject.layer = originalTargetLayer;
                 targetObject.transform.position = transform.position;
                 isDragging = false;
                 targetObject = null;
@@ -116,7 +127,13 @@ public class NpcBehavior : MonoBehaviour
         // 항상 타겟에 도달하면 판정 시도
         if (!isWaiting && Vector3.Distance(transform.position, CurrentTarget.position) < 0.01f)
         {
-            StartCoroutine(WaitAtTargetAndCheck());
+            if (isDragging) {
+                NpcClickDrag();
+            }
+            else
+            {
+                StartCoroutine(WaitAtTargetAndCheck());
+            }
         }
     }
 
@@ -138,18 +155,7 @@ public class NpcBehavior : MonoBehaviour
             }
         }
 
-        //if (Input.GetMouseButton(0))
-        //{
-        //    if (isDraggingTarget || isDraggingSelf)
-        //    {
-        //        Vector3 newPos = (Vector3)mousePos2D + dragOffset;
 
-        //        if (isDraggingTarget)
-        //            CurrentTarget.position = new Vector3(newPos.x, newPos.y, CurrentTarget.position.z);
-        //        else if (isDraggingSelf)
-        //            transform.position = new Vector3(newPos.x, newPos.y, transform.position.z);
-        //    }
-        //}
 
         if (Input.GetMouseButtonUp(0))
         {
@@ -223,7 +229,7 @@ public class NpcBehavior : MonoBehaviour
         isWaiting = true;
         Debug.Log("타겟 도착 2초 대기");
 
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(1f);
 
         NpcLeftClick();
         isWaiting = false; //대기 종료
@@ -246,8 +252,98 @@ public class NpcBehavior : MonoBehaviour
             if (hit.name == "DeleteTargetFolder")
             {
                 Debug.Log("삭제할 오브젝트 클릭 성공");
-                DragObject();
+                DragObject(hit.gameObject);
                 currentTargetIndex++;
+                startPosition = transform.position;
+                return;
+            }
+            else if (hit.name == "Trashcan")
+            {
+                Debug.Log("쓰래기통 클릭");
+                objectList[0].SetActive(true);
+                objectList[1].SetActive(true);
+                if (trshcanflag)
+                {
+                    currentTargetIndex++;
+                }
+                startPosition = transform.position;
+
+                return;
+            }
+            else if(hit.name == "ClearButton")
+            {
+                Debug.Log("비우기 버튼 클릭됨");
+                objectList[2].SetActive(true);
+                if (trshcanflag)
+                {
+                    currentTargetIndex++;
+                }
+                startPosition = transform.position;
+                return;
+            }
+            if (hit.name == "Minimize")
+            {
+                GameObject obj = hit.gameObject;
+                Debug.Log("창 최소화");
+                //부모 오브젝트만 비활성화
+                if (obj.transform.parent != null)
+                {
+                    obj.transform.parent.gameObject.SetActive(false);
+                }
+                startPosition = transform.position;
+                return;
+            }
+            if (hit.name == "SizeAdj")
+            {
+                Debug.Log("전체화면, 창모드 전환");
+                //이거 어케만들지
+                startPosition = transform.position;
+                return;
+            }
+            if (hit.name == "Exit")
+            {
+                GameObject obj = hit.gameObject;
+                Debug.Log("창 종료");
+                //부모 오브젝트 비활성화
+                if (obj.transform.parent != null)
+                {
+                    obj.transform.parent.gameObject.SetActive(false);
+                }
+                //트레이도 비활성화
+                if (obj.transform.parent.name == "TrashCanWindow")
+                {
+                    GameObject trayObj;
+                    trayObj = FindAnyObjectByType<SystemTrayIcon>().gameObject;
+                    trayObj.transform.GetChild(0).gameObject.SetActive(false);
+                }
+                startPosition = transform.position;
+                return;
+            }
+            if (hit.name == "Yes")
+            {
+                GameObject obj = hit.gameObject;
+                Debug.Log("휴지통 비운다!");
+                //부모 오브젝트 비활성화
+                if (obj.transform.parent != null)
+                {
+                    obj.transform.parent.gameObject.SetActive(false);
+                }
+                //DeleteTargetFolder 비활성화
+                GameObject windowObj;
+                windowObj = FindAnyObjectByType<TrashCanWindow>().gameObject;
+                windowObj.transform.GetChild(0).gameObject.SetActive(false);
+                startPosition = transform.position;
+                return;
+            }
+            if (hit.name == "No")
+            {
+                GameObject obj = hit.gameObject;
+                Debug.Log("휴지통 비우기 싫어!!");
+                //부모 오브젝트 비활성화
+                if (obj.transform.parent != null)
+                {
+                    obj.transform.parent.gameObject.SetActive(false);
+                }
                 startPosition = transform.position;
                 return;
             }
@@ -260,34 +356,70 @@ public class NpcBehavior : MonoBehaviour
     }
 
 
-    private GameObject targetObject = null;
-    void DragObject()
+    void NpcClickDrag()
     {
-        if (targetObject == null)
+        Vector2 center = transform.position;
+        Vector2 boxSize = new Vector2(0.2f, 0.2f); // 감지 범위 조절 가능
+
+        Collider2D[] hits = Physics2D.OverlapBoxAll(center, boxSize, 0f);
+
+        foreach (var hit in hits)
         {
-            Vector2 center = transform.position;
-            Vector2 boxSize = new Vector2(0.2f, 0.2f);
-            Collider2D[] hits = Physics2D.OverlapBoxAll(center, boxSize, 0f);
-
-            foreach (var hit in hits)
+            if (hit.gameObject == gameObject)
+                continue; // 자기 자신은 무시
+            if (hit.name == "Trashcan")
             {
-                if (hit.gameObject == gameObject)
-                    continue;
-                if (hit.name == "DeleteTargetFolder")
-                {
-                    targetObject = hit.gameObject;
-                    isDragging = true;
-                    break;
-                }
-            }
+                Debug.Log("쓰래기통으로 드래그");
+                    if (targetObject.name == "DeleteTargetFolder")
+                    {
+                        Debug.Log("삭제할 타겟이다!");
+                        targetObject.SetActive(false);
+                        endDrag = true;
+                        trshcanflag =true;
 
-            if (targetObject == null)
-            {
-                Debug.Log("드래그할 타겟 오브젝트가 없습니다");
+                        currentTargetIndex++;
+                    }
+                    else
+                    {
+                        Debug.Log("다른 타겟이지만..");
+                        targetObject.SetActive(false);
+
+                    }
+                startPosition = transform.position;
                 return;
             }
+            if (hit.name == "DeleteTargetFolder")
+            {
+                Debug.Log("직박구리 폴더로 드래그");
+
+                targetObject.SetActive(false);
+
+                startPosition = transform.position;
+                return;
+            }
+            else
+            {
+                Debug.Log("감지된 콜라이더 없음");
+                currentTargetIndex++;
+            }
+
         }
     }
+
+
+    void DragObject(GameObject obj)
+    {
+        if (obj == null) return;
+
+        originalTargetLayer = obj.layer;
+        obj.layer = LayerMask.NameToLayer("Ignore Raycast");
+
+        targetObject = obj;
+        isDragging = true;
+        endDrag = false; // 드래그가 계속되도록 초기 설정
+
+    }
+
 
 
     void HandleDragWithShake()
@@ -321,10 +453,7 @@ public class NpcBehavior : MonoBehaviour
             draggable.CancelDrag();
         }
 
-        // 2) 물리 모드 전환 및 발사
-        //rb.bodyType = RigidbodyType2D.Dynamic;
-        Vector2 dir = (Vector2.up + Vector2.right * (Random.value < 0.5f ? -1 : 1)).normalized;
-        rb.AddForce(dir * throwForce, ForceMode2D.Impulse);
+
     }
 
 
