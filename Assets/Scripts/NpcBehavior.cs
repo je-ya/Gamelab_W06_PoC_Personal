@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 
 
 
@@ -42,6 +43,7 @@ public class NpcBehavior : MonoBehaviour
     [Header("활성화 될 창")]
     public List<GameObject> objectList;
     Dictionary<string, GameObject> objectDict;
+    public List<GameObject> trayList;
     
 
 
@@ -216,8 +218,6 @@ public class NpcBehavior : MonoBehaviour
                 StressManager.Instance.IncreaseStress(10);
 
             }
-
-
         }
     }
 
@@ -259,9 +259,9 @@ public class NpcBehavior : MonoBehaviour
             }
             else if (hit.name == "Trashcan")
             {
-                Debug.Log("쓰래기통 클릭");
+                Debug.Log("쓰래기통 폴더 클릭");
                 objectList[0].SetActive(true);
-                objectList[1].SetActive(true);
+                SetActiveObjectText(hit.name);
                 if (trshcanflag)
                 {
                     currentTargetIndex++;
@@ -278,6 +278,46 @@ public class NpcBehavior : MonoBehaviour
                 {
                     currentTargetIndex++;
                 }
+                startPosition = transform.position;
+                return;
+            }
+            else if (hit.name == "Folder")
+            {
+                Debug.Log("내PC 폴더 클릭됨");
+                objectList[3].SetActive(true);
+                SetActiveObjectText(hit.name);
+                startPosition = transform.position;
+                return;
+            }
+            else if (hit.name == "Messenger")
+            {
+                Debug.Log("메신저 클릭됨");
+                objectList[6].SetActive(true);
+                SetActiveObjectText(hit.name);
+                startPosition = transform.position;
+                return;
+            }
+            else if (hit.name == "Game")
+            {
+                Debug.Log("게임 클릭됨");
+                objectList[7].SetActive(true);
+                SetActiveObjectText(hit.name);
+                startPosition = transform.position;
+                return;
+            }
+            else if (hit.name == "Internet")
+            {
+                Debug.Log("인터넷 클릭됨");
+                objectList[5].SetActive(true);
+                SetActiveObjectText(hit.name);
+                startPosition = transform.position;
+                return;
+            }
+            else if (hit.name == "DeleteTargetFolder")
+            {
+                Debug.Log("타겟 폴더 클릭됨");
+                objectList[4].SetActive(true);
+                SetActiveObjectText(hit.name);
                 startPosition = transform.position;
                 return;
             }
@@ -349,7 +389,6 @@ public class NpcBehavior : MonoBehaviour
             }
             else { 
                 Debug.Log("감지된 콜라이더 없음");
-                currentTargetIndex++;
             }
 
         }
@@ -419,6 +458,43 @@ public class NpcBehavior : MonoBehaviour
         endDrag = false; // 드래그가 계속되도록 초기 설정
 
     }
+
+
+    void SetActiveObjectText(string name)
+    {
+        // trayList가 비어 있거나 유효하지 않은 경우
+        if (trayList == null || trayList.Count == 0)
+        {
+            Debug.LogWarning("trayList가 비어 있거나 유효하지 않습니다.");
+            return;
+        }
+
+        // 비활성화된 첫 번째 오브젝트 찾기
+        foreach (GameObject obj in trayList)
+        {
+            if (obj != null && !obj.activeSelf)
+            {
+                // 오브젝트 활성화
+                obj.SetActive(true);
+
+                // TMP_Text 컴포넌트 찾기
+                TMP_Text tmpText = obj.GetComponentInChildren<TMP_Text>();
+                if (tmpText != null)
+                {
+                    tmpText.text = name;
+                }
+                else
+                {
+                    Debug.LogWarning("TMP_Text 컴포넌트를 찾을 수 없습니다.");
+                }
+                return; // 처리 후 종료
+            }
+        }
+
+        // 모든 오브젝트가 활성화된 경우
+        Debug.LogWarning("비활성화된 오브젝트가 없습니다. 모든 오브젝트가 이미 활성화되어 있습니다.");
+    }
+
 
 
 
