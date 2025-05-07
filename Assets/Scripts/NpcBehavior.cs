@@ -627,6 +627,8 @@ public class NpcBehavior : MonoBehaviour
 
 
 
+
+
     void HandleDragWithShake()
     {
         // 1) 베이스 위치: 마우스 + offset
@@ -637,11 +639,18 @@ public class NpcBehavior : MonoBehaviour
         float elapsed = Time.time - shakeStartTime;
         if (elapsed < shakeDuration)
         {
+            elapsed += Time.deltaTime;
+            
             float xOffset = Mathf.Sin(elapsed * shakeFrequency) * shakeAmplitude;
             transform.position = basePos + Vector3.right * xOffset;
-
-
-
+            reaction.ShowMessage("이거 왜 이러지?");
+            // 1초마다 이벤트 트리거
+            int currentSecond = Mathf.FloorToInt(elapsed);
+            int previousSecond = Mathf.FloorToInt(elapsed - Time.deltaTime);
+            if (currentSecond > previousSecond && currentSecond <= shakeDuration)
+            {
+                StressManager.Instance.IncreaseStress(5);
+            }
         }
         else
         {
