@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: a0111e774fb10c1459ebc5c45d60b5cd
+guid: f543aa9950a4b3540a8adf3d44dc6af6
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -117601332951816804
-    second: fake_0
+      213: -5102004344226633193
+    second: Danger_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: fake_0
+      name: Danger_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 345
-        height: 126
+        width: 390
+        height: 227
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c956b44f5323e5ef0800000000000000
-      internalID: -117601332951816804
+      spriteID: 71a2fdb941a0239b0800000000000000
+      internalID: -5102004344226633193
       vertices: []
       indices: 
       edges: []
@@ -147,8 +147,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      fake_0: -117601332951816804
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

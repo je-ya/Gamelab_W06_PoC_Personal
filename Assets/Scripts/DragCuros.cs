@@ -3,6 +3,7 @@
 public class DraggableObject : MonoBehaviour
 {
     private bool _isDragging = false;
+    
 
     public bool isDragging
     {
@@ -11,6 +12,16 @@ public class DraggableObject : MonoBehaviour
     }
 
     private Vector3 offset;
+
+
+    [SerializeField] private GameObject contextMenu; // 컨텍스트 메뉴 UI (Panel)
+    private RectTransform contextMenuRect;
+
+    private void Start()
+    {
+        contextMenuRect = contextMenu.GetComponent<RectTransform>();
+    }
+
 
     void Update()
     {
@@ -51,6 +62,28 @@ public class DraggableObject : MonoBehaviour
             Debug.Log("드래그 종료");
         }
 
+        if (Input.GetMouseButtonDown(1))
+        {
+            Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+            LayerMask cursorLayer = LayerMask.GetMask("Cursor");
+            RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero, Mathf.Infinity, cursorLayer);
+
+            if (hit.collider != null)
+            {
+                // 클릭한 오브젝트가 이 오브젝트인지 확인
+                if (hit.transform == transform)
+                {
+                    ShowContextMenu(Input.mousePosition);
+                }
+            }
+                
+        }
+        if (Input.GetMouseButtonDown(0) && contextMenu != null && contextMenu.activeSelf)
+        {
+            contextMenu.SetActive(false);
+        }
+
         // 드래그 중일 때 오브젝트 위치 업데이트
         if (_isDragging)
         {
@@ -59,6 +92,17 @@ public class DraggableObject : MonoBehaviour
             //Debug.Log("드래그 중 - 오브젝트 위치: " + transform.position);
         }
     }
+
+    private void ShowContextMenu(Vector2 mousePosition)
+    {
+        if (contextMenu == null || contextMenuRect == null) return;
+
+        contextMenu.SetActive(true);
+        // 마우스 위치에 메뉴 배치 (Canvas 좌표계 기준)
+        contextMenuRect.position = mousePosition;
+    }
+
+
 
     public void CancelDrag()
     {
