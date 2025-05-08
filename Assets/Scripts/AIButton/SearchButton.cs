@@ -12,7 +12,7 @@ public class SearchButton : MonoBehaviour
     private void Start()
     {
         icon = FindAnyObjectByType<InternetIcon>().gameObject.GetComponent<SpriteRenderer>();
-        image = transform.parent.GetComponent<Image>();
+        image = FindAnyObjectByType<AIPanel>().gameObject.GetComponent<Image>();
     }
 
 

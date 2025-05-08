@@ -1,16 +1,19 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class DrawButton : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public Canvas drawCanvas;
+    GameObject image;
+
+    private void Start()
     {
-        
+        image = FindAnyObjectByType<DrawLine>().gameObject;
     }
 
-    // Update is called once per frame
-    void Update()
+
+    public void OnButtonClick()
     {
-        
+        drawCanvas.enabled = true;
+        image.GetComponent<DrawLine>().enabled = true;
     }
 }
