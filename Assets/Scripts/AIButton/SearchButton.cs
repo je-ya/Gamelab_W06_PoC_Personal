@@ -26,8 +26,9 @@ public class SearchButton : MonoBehaviour
             icon.color = Color.red;
             ButtonEnable = true;
         }
-        else {
-        
+        else
+        {
+
             image.enabled = true;
             icon.color = Color.white;
             ButtonEnable = false;

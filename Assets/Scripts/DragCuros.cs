@@ -3,7 +3,7 @@
 public class DraggableObject : MonoBehaviour
 {
     private bool _isDragging = false;
-    
+
 
     public bool isDragging
     {
@@ -77,12 +77,12 @@ public class DraggableObject : MonoBehaviour
                     ShowContextMenu(Input.mousePosition);
                 }
             }
-                
+
         }
-/*        if (Input.GetMouseButtonDown(0) && contextMenu != null && contextMenu.activeSelf)
-        {
-            contextMenu.SetActive(false);
-        }*/
+        /*        if (Input.GetMouseButtonDown(0) && contextMenu != null && contextMenu.activeSelf)
+                {
+                    contextMenu.SetActive(false);
+                }*/
 
         // 드래그 중일 때 오브젝트 위치 업데이트
         if (_isDragging)

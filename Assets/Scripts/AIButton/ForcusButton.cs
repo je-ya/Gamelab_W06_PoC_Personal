@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
 
 public class ForcusButton : MonoBehaviour
 {
@@ -14,7 +13,9 @@ public class ForcusButton : MonoBehaviour
             focusCanvas.enabled = true;
             ButtonEnable = true;
         }
-        else { focusCanvas.enabled = false;
+        else
+        {
+            focusCanvas.enabled = false;
             ButtonEnable = false;
         }
     }

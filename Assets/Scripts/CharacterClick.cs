@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.EventSystems;
 
 public class CharacterClick : MonoBehaviour
 {
@@ -13,9 +12,10 @@ public class CharacterClick : MonoBehaviour
 
     public void OnMouseDown()
     {
-        
-        if (!Loadcanvas) {
-        
+
+        if (!Loadcanvas)
+        {
+
             Loadcanvas = true;
             AIcanvs.enabled = true;
         }

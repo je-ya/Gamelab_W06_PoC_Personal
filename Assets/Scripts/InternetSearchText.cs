@@ -1,8 +1,6 @@
-﻿using NUnit.Framework;
+﻿using System.Collections.Generic;
 using TMPro;
-using UnityEngine.UI;
 using UnityEngine;
-using System.Collections.Generic;
 
 
 public class InternetSearchText : MonoBehaviour
@@ -32,14 +30,15 @@ public class InternetSearchText : MonoBehaviour
         {
             SearchWindow.SetActive(true);
             loadWindow[1].SetActive(false);
-            loadWindow[0].SetActive(false );
+            loadWindow[0].SetActive(false);
         }
         else if (inputText == "apple")
         {
             loadWindow[1].SetActive(true);
             SearchWindow.SetActive(false);
         }
-        else {
+        else
+        {
             loadWindow[0].SetActive(true);
             SearchWindow.SetActive(false);
         }

@@ -1,6 +1,6 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
+using UnityEngine;
 
 public class DrawLine : MonoBehaviour
 {
@@ -165,7 +165,7 @@ public class DrawLine : MonoBehaviour
         // Texture2D는 캡처 영역 크기로 설정
         Texture2D texture = new Texture2D(width, height, TextureFormat.RGB24, false);
         // 캡처 영역만 읽기 (화면 좌표 기준)
-        texture.ReadPixels(new Rect(x, y-170, width, height), 0, 0);
+        texture.ReadPixels(new Rect(x, y - 170, width, height), 0, 0);
         texture.Apply();
 
         // PNG로 저장

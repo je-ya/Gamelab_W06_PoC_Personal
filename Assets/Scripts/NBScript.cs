@@ -4,37 +4,42 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public enum BehaviorState
+public class NBScript : MonoBehaviour
 {
-    SetTitle,
-    SetBG,
-    WriteContent
-}
+    [Header("NPC 행동 타겟")]
+    public Transform[] targets;  // 여러 타겟 등록용
+    public Transform CurrentTarget =>
+        (currentTargetIndex < targets.Length) ? targets[currentTargetIndex] : null;
 
 
-public class NpcBehavior : MonoBehaviour
-{
-
-
-
-    public BehaviorState currentState;
-
+    [Header("지금 향하고 있는 타겟 번호")]
+    [SerializeField]
     int currentTargetIndex = 0;
 
-    bool wasDragging = false;
-    bool isDraggingSelf = false;
-    bool isDraggingTarget = false;
-    bool isWaiting = false;
-
-    float dragStartTime = 0f;
-
-    Vector3 dragOffset;
+    float moveSpeed = 4f;
+    float allowedDistanceFromPath = 0.1f; // 경로에서 허용되는 거리
     Vector3 startPosition; // 현재 경로의 시작점
 
-    NpcReaction reaction;
 
     Camera mainCamera;
+    NpcReaction reaction;
 
+    bool wasDragging = false;
+    bool isDraggingTarget = false;
+    bool isDraggingSelf = false;
+    Vector3 dragOffset;
+
+
+    bool isWaiting = false;
+    float dragStartTime = 0f;
+
+
+    bool followTarget = true;
+
+
+
+    bool trshcanFlag = false;
+    bool openFlag = false;
 
     [Header("활성화 될 창")]
     public List<GameObject> objectList;
@@ -65,32 +70,197 @@ public class NpcBehavior : MonoBehaviour
 
 
 
-
-
-    void Start()
+    private void Behavior()
     {
-        mainCamera = Camera.main;
-        startPosition = transform.position;
-        rb = GetComponent<Rigidbody2D>();
-        reaction = FindAnyObjectByType<NpcReaction>();
-        currentState = BehaviorState.SetTitle;
-    }
-
-    void Update()
-    {
-        switch (currentState)
+        if (!isDraggingSelf)
         {
-            case BehaviorState.SetTitle:
-                break;
-            case BehaviorState.SetBG:
-                break;
-            case BehaviorState.WriteContent:
-                break;
+            // 드래그가 끝나고 처음으로 이동이 시작되는 타이밍
+            if (wasDragging)
+            {
+                //CheckIfOutsidePath();
+                wasDragging = false;
+            }
+
+
+            ////다른 창 열리면 종료하려고 해야하고, 창이 최소화되거나 종료되면 다시 켜야함
+            //if (isRemovingWindow && removeTarget != null && exitButton != null)
+            //{
+            //    MoveAIToExitButton();
+            //}
+            //else
+            //{
+            //    MoveTowardTarget();
+            //}
         }
+        //if (isDraggingSelf)
+        //{
+        //    float elapsed = Time.time - dragStartTime;
+        //    if (elapsed >= 3f)
+        //    {
+        //        HandleDragWithShake();
+
+        //    }
+        //}
+
+
+        if (isDragging && targetObject != null)
+        {
+            targetObject.transform.position = transform.position;
+
+            if (endDrag == true)
+            {
+                targetObject.layer = originalTargetLayer;
+                targetObject.transform.position = transform.position;
+                isDragging = false;
+                Debug.Log("오브젝트가 다음 위치에 놓였습니다: " + transform.position);
+                targetObject = null;
+            }
+        }
+
+
         HandleMouseInput2D();
     }
 
+    void MoveTowardTarget()
+    {
+        if (!followTarget || CurrentTarget == null || isWaiting) return;
 
+        transform.position = Vector3.MoveTowards(transform.position, CurrentTarget.position, moveSpeed * Time.deltaTime);
+
+        if (CurrentTarget != null && !CurrentTarget.gameObject.activeInHierarchy)
+        {
+            currentTargetIndex--;
+            if (currentTargetIndex == 2)
+                openFlag = true;
+        }
+
+        // 항상 타겟에 도달하면 판정 시도
+        /*        if (!isWaiting && Vector3.Distance(transform.position, CurrentTarget.position) < 0.01f)
+                {
+
+                    WaitAtTargetAndCheckDrag();
+                    Debug.Log("판정합니다!");
+                    if (isDragging)
+                    {
+                        Debug.Log("드래그 해야함");
+                        NpcClickDrag();
+                    }
+                    else
+                    {
+                        if (openFlag)
+                        {
+                            Debug.Log("더블클릭 해야함");
+                            StartCoroutine(WaitAtTargetAndCheckDouble());
+                        }
+                        else
+                        {
+
+                            Debug.Log("클릭 해야함");
+                            StartCoroutine(WaitAtTargetAndCheck());
+                        }
+                    }
+                }*/
+    }
+
+
+    void HandleDragWithShake()
+    {
+        // 1) 베이스 위치: 마우스 + offset
+        var mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector3 basePos = new Vector3(mouseWorld.x, mouseWorld.y, transform.position.z) + dragOffset;
+
+        // 2) 경과 시간에 따른 흔들 오프셋
+        float elapsed = Time.time - shakeStartTime;
+        if (elapsed < shakeDuration)
+        {
+            elapsed += Time.deltaTime;
+
+            float xOffset = Mathf.Sin(elapsed * shakeFrequency) * shakeAmplitude;
+            transform.position = basePos + Vector3.right * xOffset;
+            reaction.ShowMessage("이거 왜 이러지?");
+            // 1초마다 이벤트 트리거
+            int currentSecond = Mathf.FloorToInt(elapsed);
+            int previousSecond = Mathf.FloorToInt(elapsed - Time.deltaTime);
+            if (currentSecond > previousSecond && currentSecond <= shakeDuration)
+            {
+                StressManager.Instance.IncreaseStress(5);
+            }
+        }
+        else
+        {
+            wasDragging = true;
+            isDraggingTarget = false;
+            isDraggingSelf = false;
+            ThrowAway();
+        }
+    }
+
+    void ThrowAway()
+    {
+        //DraggableObject 스크립트가 붙어 있으면, 강제 해제 함수 호출
+        var draggable = GetComponent<DraggableObject>();
+        if (draggable != null)
+        {
+            draggable.CancelDrag();
+        }
+
+    }
+
+
+
+    // 드래그가 멈추고 타겟을 향한 이동이 재개될 때 호출: 사전에 정한 경로를 벗어났는지 확인
+    void CheckIfOutsidePath()
+    {
+        if (CurrentTarget == null) return;
+
+        Vector3 lineStart = startPosition;
+        Vector3 lineEnd = CurrentTarget.position;
+        Vector3 current = transform.position;
+
+        Vector3 lineDir = (lineEnd - lineStart).normalized;
+        Vector3 toCurrent = current - lineStart;
+
+        // 선분의 길이
+        float lineLength = Vector3.Distance(lineStart, lineEnd);
+
+        // 선을 따라 projection (0 ~ lineLength)
+        float proj = Vector3.Dot(toCurrent, lineDir);
+
+        if (proj < 0 || proj > lineLength)
+        {
+            startPosition = transform.position;
+            if (Random.value < 0.1f)
+            {
+                reaction.ShowMessage("이거 왜 이래?");
+                StressManager.Instance.IncreaseStress(10);
+            }
+            else
+            {
+                reaction.ShowMessage("뒤로 간거 같은데..");
+                StressManager.Instance.IncreaseStress(1);
+            }
+            //선에서 수직 거리가 계산 가능한 위치에 있음
+            return;
+        }
+
+        Vector3 closestPoint = lineStart + lineDir * proj;
+        float perpendicularDist = Vector3.Distance(closestPoint, current);
+
+        if (perpendicularDist > allowedDistanceFromPath)
+        {
+            startPosition = transform.position;
+            //선에서 수직 거리가 계산 불가능 한 위치에 있음
+
+            if (Random.value < 0.3f)
+            {
+
+                reaction.ShowMessage("마우스가 흔들린 것 같은데?");
+                StressManager.Instance.IncreaseStress(10);
+
+            }
+            else StressManager.Instance.IncreaseStress(1);
+        }
+    }
 
 
     void HandleMouseInput2D()
@@ -129,8 +299,34 @@ public class NpcBehavior : MonoBehaviour
 
 
 
+    //N초 대기 후 NPC가 화면 마우스 클릭함
+    IEnumerator WaitAtTargetAndCheck()
+    {
+        isWaiting = true;
+        Debug.Log("타겟 도착 1초 대기");
+
+        yield return new WaitForSeconds(1f);
+
+        NpcLeftClick();
+        isWaiting = false; //대기 종료
+    }
 
 
+    IEnumerator WaitAtTargetAndCheckDouble()
+    {
+        isWaiting = true;
+        Debug.Log("타겟 도착 1초 대기");
+
+        yield return new WaitForSeconds(1f);
+
+        NpcDoubleClick();
+        isWaiting = false; //대기 종료
+    }
+
+    IEnumerator WaitAtTargetAndCheckDrag()
+    {
+        yield return new WaitForSeconds(.5f);
+    }
 
     IEnumerator Wait5sec()
     {
@@ -335,11 +531,59 @@ public class NpcBehavior : MonoBehaviour
     }
 
 
+    private void ActivateObject(int index, string objectName)
+    {
+        GameObject obj = objectList[index];
+        if (!obj.activeSelf)
+        {
+            obj.SetActive(true);
+            activeObjects.Push(obj); // 스택에 추가
+            SetActiveObjectText(objectName); // 기존 텍스트 설정 함수
+        }
+
+        // 이미 켜져 있으면 치우기 시작
+        StartCleaning(obj);
+    }
+
+    private void StartCleaning(GameObject target)
+    {
+        if (!isRemovingWindow)
+        {
+            isRemovingWindow = true;
+            removeTarget = target;
+            // Exit 자식 오브젝트 찾기
+            exitButton = removeTarget.transform.Find("Exit");
+            if (exitButton == null)
+            {
+                Debug.LogError("Exit 자식 오브젝트를 찾을 수 없습니다!");
+                isRemovingWindow = false;
+                removeTarget = null;
+            }
+        }
+    }
 
 
+    private void MoveAIToExitButton()
+    {
+        Vector3 targetPosition = exitButton.position;
+        transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+        // AI가 Exit 버튼에 충분히 가까워지면 NpcLeftClick 호출
+        if (Vector3.Distance(transform.position, targetPosition) < 0.01f)
+        {
+            WaitAtTargetAndCheckDrag();
+            NpcLeftClick(); // 기존 함수 호출
+            activeObjects.Pop(); // 스택에서 제거
+            isRemovingWindow = false;
+            removeTarget = null;
+            exitButton = null;
 
-
-
+            // 스택에 남은 오브젝트가 있으면 다음 오브젝트 치우기
+            if (activeObjects.Count > 0)
+            {
+                StartCleaning(activeObjects.Peek());
+            }
+        }
+    }
 
 
     void NpcClickDrag()
@@ -493,5 +737,5 @@ public class NpcBehavior : MonoBehaviour
         }
     }
 
-}
 
+}

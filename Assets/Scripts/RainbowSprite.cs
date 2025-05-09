@@ -4,7 +4,7 @@ public class RainbowSprite : MonoBehaviour
 {
     private SpriteRenderer spriteRenderer;
     [SerializeField] private float speed = 1f; // 색상 변화 속도
-    private bool colorChange =false;
+    private bool colorChange = false;
     Color rainbowColor;
 
     void Start()

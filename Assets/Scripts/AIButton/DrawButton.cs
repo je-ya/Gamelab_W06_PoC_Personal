@@ -21,7 +21,8 @@ public class DrawButton : MonoBehaviour
             image.GetComponent<DrawLine>().enabled = true;
             ButtonEnable = true;
         }
-        else {
+        else
+        {
 
             drawCanvas.enabled = false;
             image.GetComponent<DrawLine>().enabled = false;
