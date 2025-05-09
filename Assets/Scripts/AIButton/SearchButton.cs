@@ -8,6 +8,8 @@ public class SearchButton : MonoBehaviour
     SpriteRenderer icon;
     Image image;
 
+    bool ButtonEnable = false;
+
 
     private void Start()
     {
@@ -18,8 +20,19 @@ public class SearchButton : MonoBehaviour
 
     public void OnButtonClick()
     {
-        image.enabled = false;
-        icon.color = Color.red;
+        if (!ButtonEnable)
+        {
+            image.enabled = false;
+            icon.color = Color.red;
+            ButtonEnable = true;
+        }
+        else {
+        
+            image.enabled = true;
+            icon.color = Color.white;
+            ButtonEnable = false;
+        }
+
     }
 
 

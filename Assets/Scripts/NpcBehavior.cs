@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 
 
@@ -90,6 +91,7 @@ public class NpcBehavior : MonoBehaviour
             // 드래그가 끝나고 처음으로 이동이 시작되는 타이밍
             if (wasDragging)
             {
+                Wait5sec();
                 CheckIfOutsidePath();
                 wasDragging = false;
             }
@@ -150,7 +152,7 @@ public class NpcBehavior : MonoBehaviour
         }
 
         // 항상 타겟에 도달하면 판정 시도
-        if (!isWaiting && Vector3.Distance(transform.position, CurrentTarget.position) < 0.01f)
+/*        if (!isWaiting && Vector3.Distance(transform.position, CurrentTarget.position) < 0.01f)
         {
 
             WaitAtTargetAndCheckDrag();
@@ -174,7 +176,7 @@ public class NpcBehavior : MonoBehaviour
                     StartCoroutine(WaitAtTargetAndCheck());
                 }
             }
-        }
+        }*/
     }
 
 
@@ -293,9 +295,13 @@ public class NpcBehavior : MonoBehaviour
         yield return new WaitForSeconds(.5f);
     }
 
+    IEnumerator Wait5sec()
+    {
+        yield return new WaitForSeconds(5f);
+    }
 
 
-    void NpcLeftClick()
+    public void NpcLeftClick()
     {
         //클릭 소리 재생
         Vector2 center = transform.position;
@@ -401,7 +407,7 @@ public class NpcBehavior : MonoBehaviour
     }
 
 
-    void NpcDoubleClick()
+    public void NpcDoubleClick()
     {
         Debug.Log("더블클릭해야해!");
         //클릭 소리 재생
@@ -431,7 +437,8 @@ public class NpcBehavior : MonoBehaviour
             else if (hit.name == "Folder")
             {
                 Debug.Log("내PC 폴더 클릭됨");
-                ActivateObject(3, hit.name);
+                //ActivateObject(3, hit.name);
+                objectList[1].SetActive(true);
                 SetActiveObjectText(hit.name);
                 startPosition = transform.position;
                 return;
@@ -439,7 +446,8 @@ public class NpcBehavior : MonoBehaviour
             else if (hit.name == "Messenger")
             {
                 Debug.Log("메신저 클릭됨");
-                ActivateObject(6, hit.name);
+                //ActivateObject(6, hit.name);
+                objectList[4].SetActive(true);
                 SetActiveObjectText(hit.name);
                 startPosition = transform.position;
                 return;
@@ -447,7 +455,8 @@ public class NpcBehavior : MonoBehaviour
             else if (hit.name == "Game")
             {
                 Debug.Log("게임 클릭됨");
-                ActivateObject(7, hit.name);
+                //ActivateObject(7, hit.name);
+                objectList[5].SetActive(true);
                 SetActiveObjectText(hit.name);
                 startPosition = transform.position;
                 return;
@@ -455,15 +464,32 @@ public class NpcBehavior : MonoBehaviour
             else if (hit.name == "Internet")
             {
                 Debug.Log("인터넷 클릭됨");
-                ActivateObject(5, hit.name);
+                //ActivateObject(5, hit.name);
+                objectList[3].SetActive(true);
                 SetActiveObjectText(hit.name);
+                InternetIcon internet;
+                internet = FindAnyObjectByType<InternetIcon>();
+                internet.spriteColorChange();
+                GameObject ai;
+                ai = FindAnyObjectByType<AI>().gameObject;
+                Canvas canvas = ai.GetComponent<Canvas>();
+                Image panelImage;
+                panelImage = FindAnyObjectByType<AIPanel>().gameObject.GetComponent<Image>();
+                if(canvas.enabled == true)
+                {
+                    if(panelImage.enabled == false)
+                    {
+                        panelImage.enabled = true;
+                    }    
+                }
                 startPosition = transform.position;
                 return;
             }
             else if (hit.name == "DeleteTargetFolder")
             {
                 Debug.Log("타겟 폴더 클릭됨");
-                ActivateObject(4, hit.name);
+                //ActivateObject(4, hit.name);
+                objectList[2].SetActive(true);
                 SetActiveObjectText(hit.name);
                 startPosition = transform.position;
                 return;
@@ -668,11 +694,15 @@ public class NpcBehavior : MonoBehaviour
         if (draggable != null)
         {
             draggable.CancelDrag();
-            reaction.ShowMessage("아, 움직인다.");
         }
 
     }
 
+
+    void Proposalclick()
+    {
+        
+    }
 
 }
 

@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 381a4bc120905194294032a2ed5f81c9
+guid: 51f7fd97cdb325c46897aae1a8444d7c
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6200511508824748024
-    second: Forcus_0
+      213: -2003372979690168744
+    second: LookatMe_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Forcus_0
+      name: LookatMe_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 570
-        height: 332
+        width: 414
+        height: 267
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 80097ca62ab53f9a0800000000000000
-      internalID: -6200511508824748024
+      spriteID: 85e93f8a3e69234e0800000000000000
+      internalID: -2003372979690168744
       vertices: []
       indices: 
       edges: []

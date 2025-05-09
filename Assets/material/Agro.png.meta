@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 381a4bc120905194294032a2ed5f81c9
+guid: 69fafba1aecffa44eb5358576e88d5b0
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6200511508824748024
-    second: Forcus_0
+      213: 5404132298596915208
+    second: Agro_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Forcus_0
+      name: Agro_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 570
-        height: 332
+        width: 191
+        height: 265
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 80097ca62ab53f9a0800000000000000
-      internalID: -6200511508824748024
+      spriteID: 808951971b55ffa40800000000000000
+      internalID: 5404132298596915208
       vertices: []
       indices: 
       edges: []

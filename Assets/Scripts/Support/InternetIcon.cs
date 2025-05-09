@@ -1,16 +1,11 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class InternetIcon : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    SpriteRenderer sprite;
+    public void spriteColorChange()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        sprite = GetComponent<SpriteRenderer>();
+        sprite.color = Color.white;
     }
 }
