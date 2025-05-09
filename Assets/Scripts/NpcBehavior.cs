@@ -14,9 +14,6 @@ public enum BehaviorState
 
 public class NpcBehavior : MonoBehaviour
 {
-
-
-
     public BehaviorState currentState;
 
     int currentTargetIndex = 0;
@@ -64,9 +61,6 @@ public class NpcBehavior : MonoBehaviour
     private GameObject targetObject = null;
 
 
-
-
-
     void Start()
     {
         mainCamera = Camera.main;
@@ -89,8 +83,6 @@ public class NpcBehavior : MonoBehaviour
         }
         HandleMouseInput2D();
     }
-
-
 
 
     void HandleMouseInput2D()
@@ -124,12 +116,6 @@ public class NpcBehavior : MonoBehaviour
             isDraggingSelf = false;
         }
     }
-
-
-
-
-
-
 
 
     IEnumerator Wait5sec()
@@ -334,14 +320,6 @@ public class NpcBehavior : MonoBehaviour
         }
     }
 
-
-
-
-
-
-
-
-
     void NpcClickDrag()
     {
         Vector2 center = transform.position;
@@ -432,15 +410,6 @@ public class NpcBehavior : MonoBehaviour
         // 모든 오브젝트가 활성화된 경우
         Debug.LogWarning("비활성화된 오브젝트가 없습니다. 모든 오브젝트가 이미 활성화되어 있습니다.");
     }
-
-
-
-
-
-
-
-
-
 
     int reactCounter;
 
