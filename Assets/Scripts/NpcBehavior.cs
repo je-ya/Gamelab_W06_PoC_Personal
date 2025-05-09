@@ -74,7 +74,7 @@ public class NpcBehavior : MonoBehaviour
 
 
 
-
+    
 
     void Start()
     {
@@ -86,44 +86,47 @@ public class NpcBehavior : MonoBehaviour
 
     void Update()
     {
+        Behavior();
+    }
+
+    private void Behavior()
+    {
+        MoveTowardTarget();
         if (!isDraggingSelf)
         {
             // 드래그가 끝나고 처음으로 이동이 시작되는 타이밍
             if (wasDragging)
             {
-                Wait5sec();
-                CheckIfOutsidePath();
+                //CheckIfOutsidePath();
                 wasDragging = false;
             }
+            
 
-
-            //다른 창 열리면 종료하려고 해야하고, 창이 최소화되거나 종료되면 다시 켜야함
-            if (isRemovingWindow && removeTarget != null && exitButton != null)
-            {
-                MoveAIToExitButton();
-            }
-            else
-            {
-                MoveTowardTarget();
-            }
+            ////다른 창 열리면 종료하려고 해야하고, 창이 최소화되거나 종료되면 다시 켜야함
+            //if (isRemovingWindow && removeTarget != null && exitButton != null)
+            //{
+            //    MoveAIToExitButton();
+            //}
+            //else
+            //{
+            //    MoveTowardTarget();
+            //}
         }
-        if (isDraggingSelf)
-        {
+        //if (isDraggingSelf)
+        //{
+        //    float elapsed = Time.time - dragStartTime;
+        //    if (elapsed >= 3f)
+        //    {
+        //        HandleDragWithShake();
 
-
-            float elapsed = Time.time - dragStartTime;
-            if (elapsed >= 3f)
-            {
-                HandleDragWithShake();
-
-            }
-        }
+        //    }
+        //}
 
 
         if (isDragging && targetObject != null)
         {
             targetObject.transform.position = transform.position;
-
+            
             if (endDrag == true)
             {
                 targetObject.layer = originalTargetLayer;
@@ -201,6 +204,7 @@ public class NpcBehavior : MonoBehaviour
 
         if (Input.GetMouseButtonUp(0))
         {
+            Wait5sec();
             if (isDraggingSelf || isDraggingTarget)
             {
                 wasDragging = true; // 드래그가 끝났음을 표시
@@ -475,11 +479,14 @@ public class NpcBehavior : MonoBehaviour
                 Canvas canvas = ai.GetComponent<Canvas>();
                 Image panelImage;
                 panelImage = FindAnyObjectByType<AIPanel>().gameObject.GetComponent<Image>();
+                Canvas wordPanel;
+                wordPanel = FindAnyObjectByType<InternetSub>().gameObject.GetComponent<Canvas>();
                 if(canvas.enabled == true)
                 {
                     if(panelImage.enabled == false)
                     {
                         panelImage.enabled = true;
+                        wordPanel.enabled = true;
                     }    
                 }
                 startPosition = transform.position;
@@ -698,10 +705,55 @@ public class NpcBehavior : MonoBehaviour
 
     }
 
-
-    void Proposalclick()
+    int reactCounter;
+    
+    void React()
     {
-        
+        switch (reactCounter)
+        {
+            case 0:
+                reaction.ShowMessage("?");
+                reactCounter++;
+                return;
+            case 1:
+                reaction.ShowMessage("");
+                reactCounter++;
+                return;
+            case 2:
+                reaction.ShowMessage("");
+                return;
+        }
+    }
+
+    int counter;
+    public void Proposalclick()
+    {
+
+        if (Random.value < 0.3f)
+        {
+            Debug.Log("제안 수락");
+            reaction.ShowMessage("그래? 한번 해볼까?");
+            NpcDoubleClick();
+            counter = 0;
+        }
+        else
+        {
+            Debug.Log("제안 거절");
+            switch (counter)
+            {
+                case 0:
+                    reaction.ShowMessage("응? 지금은 안해도 될 것 같은데??");
+                    counter++;
+                    return;
+                case 1:
+                    reaction.ShowMessage("그거 꼭 해야하는거야? 다른 거 해야하는데");
+                    counter++;
+                    return;
+                 case 2:
+                    reaction.ShowMessage("아. 안할거니까 그만해.");
+                    return;
+            }
+        }
     }
 
 }
