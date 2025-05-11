@@ -29,8 +29,11 @@ public class NpcBehavior : MonoBehaviour
     Vector3 startPosition; // 현재 경로의 시작점
 
     NpcReaction reaction;
+    NpcAction action;
 
     Camera mainCamera;
+
+    float moveSpeed = 2f;
 
 
     [Header("활성화 될 창")]
@@ -67,6 +70,7 @@ public class NpcBehavior : MonoBehaviour
         startPosition = transform.position;
         rb = GetComponent<Rigidbody2D>();
         reaction = FindAnyObjectByType<NpcReaction>();
+        action = FindAnyObjectByType<NpcAction>();
         currentState = BehaviorState.SetTitle;
     }
 
@@ -84,6 +88,12 @@ public class NpcBehavior : MonoBehaviour
         HandleMouseInput2D();
     }
 
+    public void MoveTowardTarget(GameObject target)
+    {
+        if(!isDraggingSelf)
+        transform.position = Vector3.MoveTowards(transform.position, target.transform.position, moveSpeed * Time.deltaTime);
+    }
+
 
     void HandleMouseInput2D()
     {
@@ -92,6 +102,7 @@ public class NpcBehavior : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
+            //reaction.ShowMessage("하고 싶은거 있어?");
             RaycastHit2D hit = Physics2D.Raycast(mousePos2D, Vector2.zero);
             if (hit.collider != null && hit.transform == transform)
             {
@@ -106,31 +117,34 @@ public class NpcBehavior : MonoBehaviour
 
         if (Input.GetMouseButtonUp(0))
         {
-            Wait5sec();
-            if (isDraggingSelf || isDraggingTarget)
+            
+            if (isDraggingSelf)
             {
                 wasDragging = true; // 드래그가 끝났음을 표시
             }
-
-            isDraggingTarget = false;
-            isDraggingSelf = false;
+            StartCoroutine(WaitAndMoveResume());
+            
         }
     }
 
 
-    IEnumerator Wait5sec()
+    IEnumerator WaitAndMoveResume()
     {
         yield return new WaitForSeconds(5f);
+        isDraggingSelf = false;
+    }
+
+    private Collider2D[] DetectColliders(Vector2? center = null, Vector2? boxSize = null)
+    {
+        Vector2 finalCenter = center ?? transform.position;
+        Vector2 finalBoxSize = boxSize ?? new Vector2(0.2f, 0.2f);
+        return Physics2D.OverlapBoxAll(finalCenter, finalBoxSize, 0f);
     }
 
 
     public void NpcLeftClick()
     {
-        //클릭 소리 재생
-        Vector2 center = transform.position;
-        Vector2 boxSize = new Vector2(0.2f, 0.2f); // 감지 범위 조절 가능
-
-        Collider2D[] hits = Physics2D.OverlapBoxAll(center, boxSize, 0f);
+        Collider2D[] hits = DetectColliders();
 
         foreach (var hit in hits)
         {
@@ -229,11 +243,8 @@ public class NpcBehavior : MonoBehaviour
     public void NpcDoubleClick()
     {
         Debug.Log("더블클릭해야해!");
-        //클릭 소리 재생
-        Vector2 center = transform.position;
-        Vector2 boxSize = new Vector2(0.2f, 0.2f); // 감지 범위 조절 가능
 
-        Collider2D[] hits = Physics2D.OverlapBoxAll(center, boxSize, 0f);
+        Collider2D[] hits = DetectColliders();
 
         foreach (var hit in hits)
         {
@@ -322,10 +333,7 @@ public class NpcBehavior : MonoBehaviour
 
     void NpcClickDrag()
     {
-        Vector2 center = transform.position;
-        Vector2 boxSize = new Vector2(0.2f, 0.2f); // 감지 범위 조절 가능
-
-        Collider2D[] hits = Physics2D.OverlapBoxAll(center, boxSize, 0f);
+        Collider2D[] hits = DetectColliders();
 
         foreach (var hit in hits)
         {
@@ -359,6 +367,22 @@ public class NpcBehavior : MonoBehaviour
             }
 
         }
+    }
+
+    public void ClickTextBox()
+    {
+        Collider2D[] hits = DetectColliders();
+
+        foreach (Collider2D hit in hits)
+        {
+            TextMeshProUGUI textMesh = hit.GetComponent<TextMeshProUGUI>();
+        }
+    }
+
+    public void ClickSlide()
+    {
+        Collider2D[] hits = DetectColliders();
+
     }
 
 

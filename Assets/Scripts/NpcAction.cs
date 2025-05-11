@@ -1,16 +1,52 @@
-﻿using UnityEngine;
+﻿using NUnit.Framework;
+using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
+using UnityEngine;
 
 public class NpcAction : MonoBehaviour
 {
+
+    BehaviorState currentState;
+    NpcBehavior behavior;
+
+    void Start()
+    {
+        behavior = FindAnyObjectByType<NpcBehavior>();
+    }
+
     /*
      제목 선정
-    1. 1번 슬라이드 클릭
-    2. 제목 텍스트 박스 클릭
-    3. 제목 텍스트 박스에 들어갈 내용 작성
-	    3-1. 과제 자료 폴더 열기
-	    3-2. 자료.txt 열기
-    4. 마우스를 좌우로 왔다갔다 유지 (반복)
+    1. 제목 텍스트 박스 클릭
+    2. 제목 텍스트 박스에 들어갈 내용 작성
+	    2-1. 과제 자료 폴더 열기
+	    2-2. 자료.txt 열기
+    3. 마우스를 좌우로 왔다갔다 유지 (반복)
      */
+    [Header("제목 선정")]
+    public List<GameObject> setTitleTarget;
+    
+
+
+    public void HandleStateSetTitle()
+    {
+        ClickTitle();
+    }
+
+    void ClickTitle()
+    {
+        behavior.MoveTowardTarget(setTitleTarget[0]);
+    }
+
+
+
+
+
+
+    void NextState()
+    {
+        currentState = (BehaviorState)(((int)currentState + 1) % 3);
+    }
+
 
 
     /*
@@ -22,9 +58,11 @@ public class NpcAction : MonoBehaviour
     5. AI에게 이미지 생성 요청 -> 커서 정지
     6. 생성된 이미지 전체 슬라이드에 적용 
      */
+    [Header("PPT 배경")]
+    public List<GameObject> setBGTarget;
 
     /*
-    과제 자료에 있는 내용 요약
+    내용 작성
     1. 텍스트 박스 클릭
     2. 자료 요약 요청 -> 커서 정지
     3. 요약된 자료 복사 및 불여넣기
@@ -32,5 +70,7 @@ public class NpcAction : MonoBehaviour
     5. 자료 복사 및 불여넣기
     끝!
     */
+    [Header("내용 작성")]
+    public List<GameObject> writeContentTarget;
 
 }
