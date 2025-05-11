@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 609fae7780109834997b3ed5974637a7
+guid: 24f10672adfa8d44095ae853741894a6
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7143431729356914902
-    second: Clipboad_0
+      213: 7165772698299506204
+    second: Play Hand_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Clipboad_0
+      name: Play Hand_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 193
-        height: 202
+        width: 190
+        height: 94
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a2f3d6e80be6ddc90800000000000000
-      internalID: -7143431729356914902
+      spriteID: c1e955f9d40f17360800000000000000
+      internalID: 7165772698299506204
       vertices: []
       indices: 
       edges: []
@@ -147,7 +147,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Play Hand_0: 7165772698299506204
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
