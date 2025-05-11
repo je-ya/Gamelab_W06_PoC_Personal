@@ -11,9 +11,13 @@ public class InternetSearchText : MonoBehaviour
     public GameObject SearchWindow;
     public List<GameObject> loadWindow;
 
+    SetInternetText setText;
+
     void Start()
     {
         text = GetComponent<TextMeshProUGUI>();
+        setText = FindAnyObjectByType<SetInternetText>();
+
         inputText = text.text;
     }
 
@@ -25,22 +29,32 @@ public class InternetSearchText : MonoBehaviour
 
     public void CheckTextAndLoadWindow()
     {
+        bool isContain;
+        
+
         inputText = text.text;
+        isContain = setText.InputText(inputText);
+
         if (inputText == "")
         {
             SearchWindow.SetActive(true);
             loadWindow[1].SetActive(false);
             loadWindow[0].SetActive(false);
         }
-        else if (inputText == "apple")
+        else if (isContain)
         {
             loadWindow[1].SetActive(true);
+            loadWindow[0].SetActive(false);
             SearchWindow.SetActive(false);
+            setText.GetText(inputText);
+
+
         }
         else
         {
             loadWindow[0].SetActive(true);
             SearchWindow.SetActive(false);
+            loadWindow[1].SetActive(false);
         }
 
 

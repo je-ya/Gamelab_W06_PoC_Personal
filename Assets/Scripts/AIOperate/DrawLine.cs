@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class DrawLine : MonoBehaviour
 {
@@ -15,10 +16,13 @@ public class DrawLine : MonoBehaviour
     private Vector2 maxBounds;
     private const float fixedZ = 10f; // Z축 고정값
 
+    ApplyButton applyButton;
+
     void Start()
     {
         // 이 스크립트가 붙은 오브젝트의 RectTransform 가져오기
         drawArea = GetComponent<RectTransform>();
+        applyButton = FindAnyObjectByType<ApplyButton>();
         CalculateBounds(); // 경계 계산
         CreateNewLine();
     }
@@ -179,7 +183,50 @@ public class DrawLine : MonoBehaviour
         RenderTexture.active = null;
         Destroy(renderTexture);
         Destroy(texture);
+
+        applyButton.SetStateChangeBG();
     }
+
+    public void ApplyCapturedImageToSprite(GameObject targetObject)
+    {
+        string path = Application.persistentDataPath + "/drawing.png";
+
+        if (File.Exists(path))
+        {
+            byte[] imageData = File.ReadAllBytes(path);
+            Texture2D texture = new Texture2D(2, 2);
+            texture.LoadImage(imageData);
+
+            // 텍스처에서 스프라이트 생성
+            Sprite sprite = Sprite.Create(texture,
+                                          new Rect(0, 0, texture.width, texture.height),
+                                          new Vector2(0.5f, 0.5f));
+
+            // SpriteRenderer가 있다면 적용
+            SpriteRenderer renderer = targetObject.GetComponent<SpriteRenderer>();
+            if (renderer != null)
+            {
+                renderer.sprite = sprite;
+                return;
+            }
+
+            // UI Image가 있다면 적용
+            Image uiImage = targetObject.GetComponent<Image>();
+            if (uiImage != null)
+            {
+                uiImage.sprite = sprite;
+                return;
+            }
+
+            Debug.LogWarning("SpriteRenderer 또는 Image 컴포넌트가 없습니다.");
+        }
+        else
+        {
+            Debug.LogError("이미지 파일을 찾을 수 없습니다: " + path);
+        }
+    }
+
+
 
     public void DrawEnd()
     {

@@ -8,9 +8,12 @@ public class InternetText : MonoBehaviour
     string text;
     Button insertButton; // 클릭할 버튼
     public TextMeshProUGUI serchText;
+    CollectText collectText;
 
     void Start()
     {
+        collectText = FindAnyObjectByType<CollectText>();
+
         Mytext = GetComponent<TextMeshProUGUI>();
         insertButton = GetComponent<Button>();
         text = Mytext.text;
@@ -21,5 +24,10 @@ public class InternetText : MonoBehaviour
     public void ButtonClick()
     {
         serchText.text += text;
+    }
+
+    public void ClickToCollect()
+    {
+        collectText.addTextCollection(text);
     }
 }

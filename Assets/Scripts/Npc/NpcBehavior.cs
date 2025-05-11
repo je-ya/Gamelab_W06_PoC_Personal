@@ -303,12 +303,15 @@ public class NpcBehavior : MonoBehaviour
                 panelImage = FindAnyObjectByType<AIPanel>().gameObject.GetComponent<Image>();
                 Canvas wordPanel;
                 wordPanel = FindAnyObjectByType<InternetSub>().gameObject.GetComponent<Canvas>();
+                Canvas containbox;
+                containbox = FindAnyObjectByType<InternetSub1>().gameObject.GetComponent<Canvas>();
                 if (canvas.enabled == true)
                 {
                     if (panelImage.enabled == false)
                     {
                         panelImage.enabled = true;
                         wordPanel.enabled = true;
+                        containbox.enabled = true;
                     }
                 }
                 startPosition = transform.position;

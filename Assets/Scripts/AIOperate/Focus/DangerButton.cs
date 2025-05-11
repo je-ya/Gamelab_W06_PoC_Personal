@@ -48,4 +48,18 @@ public class DangerButton : MonoBehaviour
     }
 
 
+
+
+
+    public void DestroySpawnedObject()
+    {
+        if (spawnedObject != null)
+        {
+            Destroy(spawnedObject);
+            spawnedObject = null;
+            isFollowingMouse = false;
+        }
+    }
+
+
 }

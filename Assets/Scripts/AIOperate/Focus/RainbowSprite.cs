@@ -36,7 +36,7 @@ public class RainbowSprite : MonoBehaviour
     {
         colorChange = true;
     }
-    public void EndColorCjange()
+    public void EndColorChange()
     {
         colorChange = false;
     }
